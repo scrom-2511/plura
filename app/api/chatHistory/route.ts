@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../lib/prisma";
 
-/**
- * Handles POST request to fetch paginated chat history for a user.
- *
- * @param {NextRequest} req - The incoming request object containing JSON body with userID and page.
- * @returns {Promise<NextResponse>} JSON response with chat history or error message.
- */
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   // Parse JSON body to extract userID and page number
   const { userID, page } = await req.json();

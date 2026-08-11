@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../lib/prisma";
 
-/**
- * Handles POST request to fetch conversations by chatID and userID.
- *
- * @param {NextRequest} req - Incoming request with JSON body containing chatID and userID.
- * @returns {Promise<NextResponse>} JSON response with conversations data or error message.
- */
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   try {
     // Parse request body for chatID and userID

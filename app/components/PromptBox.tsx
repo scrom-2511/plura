@@ -8,15 +8,7 @@ type PromptBoxProps = {
   handleOnClick: () => void;
 };
 
-/**
- * PromptBox component allows user to input a prompt and send it.
- *
- * @param {Object} props - Component props
- * @param {string} props.prompt - Current prompt value
- * @param {React.Dispatch<React.SetStateAction<string>>} props.setPrompt - State setter for prompt
- * @param {() => void} props.handleOnClick - Click handler for send button
- */
-const PromptBox = ({ prompt, setPrompt, handleOnClick }:PromptBoxProps) => {
+const PromptBox = ({ prompt, setPrompt, handleOnClick }: PromptBoxProps) => {
   // Handler for textarea changes with input validation to ensure string value
   const onPromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;

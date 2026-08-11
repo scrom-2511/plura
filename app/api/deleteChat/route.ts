@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../lib/prisma";
 
-/**
- * Handles POST request to soft-delete a chat by setting its `deleted` flag to true.
- *
- * @param {NextRequest} req - The incoming request object containing JSON body with chatUUID.
- * @returns {Promise<NextResponse>} JSON response indicating success or error message.
- */
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   // Parse and validate input
   const { chatUUID } = await req.json();

@@ -2,17 +2,6 @@ import axios from "axios";
 import { ApiResponse } from "@/types/types";
 import { OptionsMenu } from "../zustand/store";
 
-/* ============================
- * API Call Functions
- * ============================ */
-
-/**
- * Sends a request to rename a chat by its component ID.
- *
- * @param {OptionsMenu} options - Object containing the chat component ID.
- * @param {string} newName - The new name to assign to the chat.
- * @returns {Promise<ApiResponse<void>>} - Promise resolving to API response indicating success or failure.
- */
 export const renameChat = async (options: OptionsMenu, newName: string): Promise<ApiResponse<void>> => {
   // Input validation: Ensure componentID is a string and newName is a non-empty string
   if (!options || typeof options.componentID !== "string" || typeof newName !== "string" || newName.trim().length === 0) {

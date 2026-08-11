@@ -5,12 +5,6 @@ import { prisma } from "../../lib/prisma";
 import { userCheck } from "../../utils/userCheck.utils";
 import { success } from "zod";
 
-/**
- * Handles POST request to stream a model response.
- *
- * @param {NextRequest} req - Incoming request containing prompt and identifiers.
- * @returns {Promise<NextResponse>} Streamed response from the model.
- */
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   // Parse request JSON body and validate inputs
   const { prompt, userID, conversationID, chatID } = await req.json();

@@ -1,17 +1,6 @@
 import { ApiResponse } from "@/types/types";
 import axios from "axios";
 
-/* ============================
- * API Call Functions
- * ============================ */
-
-/**
- * Fetches conversations for a given user and chat ID.
- *
- * @param {number} userID - The ID of the user.
- * @param {string} chatID - The chat ID string.
- * @returns {Promise<ApiResponse<any>>} - Promise resolving to API response containing conversations data or error info.
- */
 export const conversations = async (
   userID: number,
   chatID: string

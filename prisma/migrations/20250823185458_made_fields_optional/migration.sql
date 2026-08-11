@@ -1,5 +1,0 @@
--- AlterTable
-ALTER TABLE "public"."Conversation" ALTER COLUMN "deepseek" DROP NOT NULL,
-ALTER COLUMN "gpt" DROP NOT NULL,
-ALTER COLUMN "mistral" DROP NOT NULL,
-ALTER COLUMN "qwen" DROP NOT NULL;

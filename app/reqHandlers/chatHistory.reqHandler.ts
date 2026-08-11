@@ -1,17 +1,6 @@
 import { ApiResponse } from "@/types/types";
 import axios from "axios";
 
-/* ============================
- * API Call Functions
- * ============================ */
-
-/**
- * Fetches chat history for a given user and page number.
- *
- * @param {number} userID - The ID of the user.
- * @param {number} page - The page number for pagination.
- * @returns {Promise<ApiResponse<any>>} - Promise resolving to API response containing chat history data or error info.
- */
 export const chatHistory = async (userID: number, page: number): Promise<ApiResponse<any>> => {
   // Input validation: check if userID and page are valid positive numbers
   if (typeof userID !== "number" || userID <= 0 || typeof page !== "number" || page <= 0) {

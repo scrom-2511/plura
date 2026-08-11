@@ -2,16 +2,6 @@ import { Message, modelFieldMap, ModelTypes } from "@/types/types";
 import { prisma } from "../lib/prisma";
 import { client, connectClient } from "./redisClient.utils";
 
-
-
-/**
- * Provides the cached conversation context or fetches it from the database.
- *
- * @param {number} userID - The ID of the user.
- * @param {ModelTypes} model - The model type.
- * @param {string} chatID - The chat session ID.
- * @returns {Promise<string | null>} - Cached JSON string of conversation messages or null if no data.
- */
 export const contextProvider = async (
   userID: number,
   model: ModelTypes,

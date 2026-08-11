@@ -4,12 +4,6 @@ import { streamModel } from "../../utils/streamModel.utils";
 import { prisma } from "../../lib/prisma";
 import { userCheck } from "../../utils/userCheck.utils";
 
-/**
- * Handles POST request to stream a QWEN model response.
- *
- * @param {NextRequest} req - Incoming request containing prompt and identifiers.
- * @returns {Promise<NextResponse>} Streamed response from the model.
- */
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   // Parse request JSON body and validate inputs
   const { prompt, userID, conversationID, chatID } = await req.json();

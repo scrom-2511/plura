@@ -1,12 +1,6 @@
 import { prisma } from "../lib/prisma";
 import { client, connectClient } from "./redisClient.utils";
 
-/**
- * Check if the user is a premium member based on userID.
- * 
- * @param {number} userID - The unique identifier for the user.
- * @returns {Promise<boolean>} - A promise that resolves to the user's premium status.
- */
 export const userCheck = async (userID: number): Promise<boolean> => {
   try {
     // Step 1: Connect to the Redis client
@@ -16,7 +10,7 @@ export const userCheck = async (userID: number): Promise<boolean> => {
 
     // Step 2: Try to get the user's premium status from Redis cache
     const cachedUser = await client.get(key);
-    
+
     if (!cachedUser) {
       // Step 3: If the user is not found in the cache, fetch from the database
       const userFromDB = await prisma.user.findUnique({

@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/api/lib/prisma";
 
-/**
- * Handles user sign-up.
- *
- * @param {Request} req - The incoming HTTP request containing new user data.
- * @return {Promise<NextResponse>} - JSON response indicating sign-up result.
- */
 export const POST = async (req: Request): Promise<NextResponse> => {
   try {
     // Parse and validate input

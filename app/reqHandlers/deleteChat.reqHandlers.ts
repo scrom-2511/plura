@@ -2,16 +2,6 @@ import axios from "axios";
 import { ApiResponse } from "@/types/types";
 import { OptionsMenu } from "../zustand/store";
 
-/* ============================
- * API Call Functions
- * ============================ */
-
-/**
- * Sends a request to delete a chat by its component ID.
- *
- * @param {OptionsMenu} options - Object containing the chat component ID.
- * @returns {Promise<ApiResponse<void>>} - Promise resolving to API response indicating success or failure.
- */
 export const deleteChat = async (options: OptionsMenu): Promise<ApiResponse<void>> => {
   // Input validation: Ensure options and componentID are valid
   if (!options || typeof options.componentID !== "string") {
