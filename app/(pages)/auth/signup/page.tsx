@@ -16,9 +16,22 @@ const SignUp = () => {
     setError(null);
 
     try {
-      // Implement your sign up logic here
-      // const res = await signUp(...)
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          username: `${firstName} ${lastName}`,
+          password,
+        }),
+      });
       
+      if (!res.ok) {
+        throw new Error("Failed to sign up");
+      }
+
       router.push("/auth/signin");
     } catch (err) {
       console.error(err);
@@ -78,7 +91,7 @@ const SignUp = () => {
               required
             />
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <input type="checkbox" id="terms" className="rounded bg-input border-input-border text-accent focus:ring-accent accent-accent w-4 h-4" required />
             <label htmlFor="terms" className="text-xs text-secondary select-none cursor-pointer">

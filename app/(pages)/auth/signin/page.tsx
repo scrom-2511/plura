@@ -65,7 +65,7 @@ const Signin = () => {
               required
             />
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <input type="checkbox" id="remember" className="rounded bg-input border-input-border text-accent focus:ring-accent accent-accent w-4 h-4" />
             <label htmlFor="remember" className="text-sm text-secondary select-none cursor-pointer">
