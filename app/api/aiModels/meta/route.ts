@@ -21,10 +21,10 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        // Stream the DEEPSEEK model response with API key #2
-        await streamModel(ModelTypes.DEEPSEEK, controller, prompt, userID, process.env.OPENROUTER_KEY_2 as string, chatID, conversationID);
+        // Stream the META model response with API key #3
+        await streamModel(ModelTypes.META, controller, prompt, userID, process.env.OPENROUTER_KEY_1 as string, chatID, conversationID);
       } catch (error) {
-        // Close the stream controller on error
+        // Handle error by signaling stream controller
         controller.error(error);
       }
     },

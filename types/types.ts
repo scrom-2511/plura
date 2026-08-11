@@ -3,14 +3,14 @@ import z from "zod";
 
 export enum ModelTypes {
   GPT = "openai/gpt-oss-20b:free",
-  DEEPSEEK = "google/gemma-4-31b-it:free",
-  MISTRAL = "nvidia/nemotron-3.5-content-safety:free",
+  GEMINI = "google/gemini-3.5-flash-lite",
+  META = "meta-llama/llama-3.1-8b-instruct",
 }
 
 export const modelFieldMap: Record<ModelTypes, keyof Conversation> = {
   [ModelTypes.GPT]: "gpt",
-  [ModelTypes.DEEPSEEK]: "deepseek",
-  [ModelTypes.MISTRAL]: "mistral",
+  [ModelTypes.GEMINI]: "gemini",
+  [ModelTypes.META]: "meta",
 };
 
 export type Message = {
@@ -23,8 +23,8 @@ export type ConversationEntry = {
   conversationID: string;
   prompt: string;
   gpt: string | null;
-  deepseek: string | null;
-  mistral: string | null;
+  gemini: string | null;
+  meta: string | null;
   userID: number;
   chatID: string;
   createdAt: string;

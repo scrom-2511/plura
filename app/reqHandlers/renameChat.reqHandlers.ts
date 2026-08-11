@@ -14,11 +14,10 @@ export const renameChat = async (options: OptionsMenu, newName: string): Promise
   }
 
   try {
-    // Make POST request to renameChat API endpoint with chatID and newName
     await axios.post(
       "http://localhost:3000/api/renameChat",
       {
-        chatID: options.componentID,
+        chatUUID: options.componentID,
         newName,
       },
       { withCredentials: true }

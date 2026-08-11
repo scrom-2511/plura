@@ -21,10 +21,10 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        // Stream the MISTRAL model response with API key #3
-        await streamModel(ModelTypes.MISTRAL, controller, prompt, userID, process.env.OPENROUTER_KEY_3 as string, chatID, conversationID);
+        // Stream the GEMINI model response with API key #2
+        await streamModel(ModelTypes.GEMINI, controller, prompt, userID, process.env.OPENROUTER_KEY_1 as string, chatID, conversationID);
       } catch (error) {
-        // Handle error by signaling stream controller
+        // Close the stream controller on error
         controller.error(error);
       }
     },

@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import {
   useGptStore,
-  useDeepseekStore,
-  useMistralStore,
+  useGeminiStore,
+  useMetaStore,
   useChatHistoryStore,
   Chat,
 } from "../zustand/store";
@@ -35,19 +35,19 @@ const Chatcomponent = () => {
   const addConversationGpt = useGptStore((state) => state.addConversation);
   const clearGpt = useGptStore((state) => state.clearMessages);
 
-  //  DEEPSEEK STORE 
-  const [deepseekResponse, setDeepseekResponse] = useState<string>("");
-  const [newConversationDeepseek, setNewConversationDeepseek] = useState<boolean>(false);
-  const messagesDeepseek = useDeepseekStore((state) => state.messages);
-  const addConversationDeepseek = useDeepseekStore((state) => state.addConversation);
-  const clearDeepseek = useDeepseekStore((state) => state.clearMessages);
+  //  GEMINI STORE 
+  const [geminiResponse, setGeminiResponse] = useState<string>("");
+  const [newConversationGemini, setNewConversationGemini] = useState<boolean>(false);
+  const messagesGemini = useGeminiStore((state) => state.messages);
+  const addConversationGemini = useGeminiStore((state) => state.addConversation);
+  const clearGemini = useGeminiStore((state) => state.clearMessages);
 
-  //  MISTRAL STORE 
-  const [mistralResponse, setMistralResponse] = useState<string>("");
-  const [newConversationMistral, setNewConversationMistral] = useState<boolean>(false);
-  const messagesMistral = useMistralStore((state) => state.messages);
-  const addConversationMistral = useMistralStore((state) => state.addConversation);
-  const clearMistral = useMistralStore((state) => state.clearMessages);
+  //  META STORE 
+  const [metaResponse, setMetaResponse] = useState<string>("");
+  const [newConversationMeta, setNewConversationMeta] = useState<boolean>(false);
+  const messagesMeta = useMetaStore((state) => state.messages);
+  const addConversationMeta = useMetaStore((state) => state.addConversation);
+  const clearMeta = useMetaStore((state) => state.clearMessages);
 
   //  CHAT HISTORY STORE 
   const { addChat } = useChatHistoryStore();
@@ -61,8 +61,8 @@ const Chatcomponent = () => {
   useEffect(() => {
     // 1. Immediately clear existing stores to prevent mixed data
     clearGpt();
-    clearDeepseek();
-    clearMistral();
+    clearGemini();
+    clearMeta();
     setConversations([]);
 
     if (!url.chatID || pathname.includes("newChat")) {
@@ -103,7 +103,7 @@ const Chatcomponent = () => {
 
       getConversations();
     }
-  }, [url.chatID, pathname, clearGpt, clearDeepseek, clearMistral]);
+  }, [url.chatID, pathname, clearGpt, clearGemini, clearMeta]);
 
   //  EFFECT: Load Conversations into Stores & Cleanup 
   useEffect(() => {
@@ -115,23 +115,23 @@ const Chatcomponent = () => {
         prompt: entry.prompt,
         response: entry.gpt ?? "There was an error getting the response.",
       });
-      addConversationDeepseek({
+      addConversationGemini({
         prompt: entry.prompt,
-        response: entry.deepseek ?? "There was an error getting the response.",
+        response: entry.gemini ?? "There was an error getting the response.",
       });
-      addConversationMistral({
+      addConversationMeta({
         prompt: entry.prompt,
-        response: entry.mistral ?? "There was an error getting the response.",
+        response: entry.meta ?? "There was an error getting the response.",
       });
     });
 
     // Cleanup function to clear all messages on unmount or conversation change
     return () => {
       clearGpt();
-      clearDeepseek();
-      clearMistral();
+      clearGemini();
+      clearMeta();
     };
-  }, [conversation, addConversationGpt, addConversationDeepseek, addConversationMistral, clearGpt, clearDeepseek, clearMistral]);
+  }, [conversation, addConversationGpt, addConversationGemini, addConversationMeta, clearGpt, clearGemini, clearMeta]);
 
   const streamModel = async (
     model: string,
@@ -245,8 +245,8 @@ const Chatcomponent = () => {
   const startStreaming = async (conversationID: string, chatID: string, promptText?: string) => {
     await Promise.allSettled([
       streamModel("chatgpt", setGptResponse, addConversationGpt, setNewConversationGpt, conversationID, chatID, promptText),
-      streamModel("deepseek", setDeepseekResponse, addConversationDeepseek, setNewConversationDeepseek, conversationID, chatID, promptText),
-      streamModel("mistral", setMistralResponse, addConversationMistral, setNewConversationMistral, conversationID, chatID, promptText),
+      streamModel("gemini", setGeminiResponse, addConversationGemini, setNewConversationGemini, conversationID, chatID, promptText),
+      streamModel("meta", setMetaResponse, addConversationMeta, setNewConversationMeta, conversationID, chatID, promptText),
     ]);
   };
 
@@ -262,24 +262,24 @@ const Chatcomponent = () => {
             liveResponse={gptResponse}
           />
           <ChatPanel
-            title="DEEPSEEK"
-            messages={messagesDeepseek}
-            newConversation={newConversationDeepseek}
+            title="GEMINI"
+            messages={messagesGemini}
+            newConversation={newConversationGemini}
             currentPrompt={currentPrompt}
-            liveResponse={deepseekResponse}
+            liveResponse={geminiResponse}
           />
           <ChatPanel
-            title="MISTRAL"
-            messages={messagesMistral}
-            newConversation={newConversationMistral}
+            title="META"
+            messages={messagesMeta}
+            newConversation={newConversationMeta}
             currentPrompt={currentPrompt}
-            liveResponse={mistralResponse}
+            liveResponse={metaResponse}
           />
         </>
       ) : (
         // No chat component
         <>
-          {["CHATGPT", "DEEPSEEK", "MISTRAL"].map((model) => (
+          {["CHATGPT", "GEMINI", "META"].map((model) => (
             <div
               key={model}
               className="flex flex-col items-center justify-center bg-background border border-input-border rounded-3xl h-full p-8 transition-all duration-500 hover:bg-input hover:border-accent/50 hover:shadow-2xl hover:shadow-accent/10 hover:-translate-y-1.5 group cursor-default"

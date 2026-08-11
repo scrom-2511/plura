@@ -22,8 +22,8 @@ model Conversation {
   conversationID String   @unique
   prompt         String
   gpt            String?
-  deepseek       String?
-  mistral        String?
+  gemini       String?
+  meta        String?
   chat           Chat     @relation(fields: [chatID], references: [chatUUID])
   user           User     @relation(fields: [userID], references: [id])
   userID         Int

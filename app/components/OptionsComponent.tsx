@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { OptionsMenu, useOptionsMenuStore } from "../zustand/store";
+import { useRouter, usePathname } from "next/navigation";
+import { OptionsMenu, useOptionsMenuStore, useChatHistoryStore } from "../zustand/store";
 import { deleteChat } from "../reqHandlers/deleteChat.reqHandlers";
 import { renameChat } from "../reqHandlers/renameChat.reqHandlers";
 
@@ -14,6 +15,12 @@ const OptionsComponent = () => {
    * ==== */
   const options = useOptionsMenuStore((state) => state.options);
   const setOptionsMenu = useOptionsMenuStore((state) => state.setOptions);
+
+  const removeChat = useChatHistoryStore((state) => state.removeChat);
+  const updateChatName = useChatHistoryStore((state) => state.updateChatName);
+
+  const router = useRouter();
+  const pathname = usePathname();
 
   /* ====
    * Local Component State
@@ -31,7 +38,13 @@ const OptionsComponent = () => {
   const handleOnClickDeleteOptionClick = async (): Promise<void> => {
     try {
       setOptionsMenu({ ...options, visibility: false });
-      await deleteChat(options); // Call API to delete chat
+      const res = await deleteChat(options); // Call API to delete chat
+      if (res.success) {
+        removeChat(options.componentID);
+        if (pathname === `/chat/${options.componentID}`) {
+          router.push('/chat/newChat');
+        }
+      }
     } catch (error) {
       console.error("Failed to delete chat:", error); // Error logging
     }
@@ -56,7 +69,10 @@ const OptionsComponent = () => {
     }
 
     try {
-      await renameChat(options, newName); // Call API to rename chat
+      const res = await renameChat(options, newName); // Call API to rename chat
+      if (res.success) {
+        updateChatName(options.componentID, newName);
+      }
       setRenameComponent(false); // Hide rename input after success
     } catch (error) {
       console.error("Failed to rename chat:", error); // Error logging
@@ -107,30 +123,53 @@ const OptionsComponent = () => {
     <>
       {/* Rename Chat Modal */}
       {renameComponent && (
-        <div
-          ref={renameRef}
-          className="absolute bg-primary h-auto w-80 rounded-xl text-[12px] p-7 shadow-[0_0px_20px_rgba(255,0,0,0)] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
-        >
-          <h1 className="pb-5">RENAME CHAT</h1>
-          <input
-            type="text"
-            placeholder="Add a new name"
-            className="w-full mb-5 focus:outline-0"
-            onChange={(e) => setNewName(e.target.value)} // Update input state
-          />
-          <button onClick={handleOnClickRenameChatClick}>Rename</button>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div
+            ref={renameRef}
+            className="bg-input border border-input-border w-80 rounded-2xl p-6 shadow-2xl flex flex-col items-center"
+          >
+            <h1 className="text-lg font-bold text-foreground mb-4">Rename Chat</h1>
+            <input
+              type="text"
+              placeholder="Add a new name"
+              className="bg-background border border-input-border text-foreground w-full rounded-xl h-11 text-[14px] focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent px-4 mb-6 placeholder-secondary transition-all"
+              onChange={(e) => setNewName(e.target.value)} // Update input state
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleOnClickRenameChatClick();
+              }}
+            />
+            <button
+              onClick={handleOnClickRenameChatClick}
+              className="bg-accent text-foreground rounded-xl w-full h-11 text-sm font-bold shadow-md shadow-accent/20 hover:shadow-accent/40 hover:-translate-y-0.5 transition-all active:scale-95 flex items-center justify-center gap-2"
+            >
+              Rename
+            </button>
+          </div>
         </div>
       )}
 
       {/* Options Menu (Rename / Delete) */}
-      <div
-        ref={optionsRef}
-        className="absolute bg-primary h-20 w-40 grid grid-rows-2 rounded-xl top-52 items-center text-[12px] px-3 shadow-[0_0px_20px_rgba(255,0,0,0)]"
-        style={{ display: options.visibility ? "grid" : "none", top: options.y, left: options.x }}
-      >
-        <div onClick={handleOnClickRenameOptionClick}>RENAME</div>
-        <div onClick={handleOnClickDeleteOptionClick}>DELETE CHAT</div>
-      </div>
+      {options.visibility && (
+        <div
+          ref={optionsRef}
+          className="fixed bg-input border border-input-border rounded-xl w-40 shadow-xl overflow-hidden py-1 z-50 flex flex-col"
+          style={{ top: options.y, left: options.x }}
+        >
+          <button
+            className="w-full text-left px-4 py-2 hover:bg-background transition-colors text-[13px] font-medium text-foreground"
+            onClick={handleOnClickRenameOptionClick}
+          >
+            Rename
+          </button>
+          <button
+            className="w-full text-left px-4 py-2 hover:bg-background transition-colors text-[13px] font-medium text-red-500 hover:text-red-400"
+            onClick={handleOnClickDeleteOptionClick}
+          >
+            Delete Chat
+          </button>
+        </div>
+      )}
     </>
   );
 };

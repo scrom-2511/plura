@@ -39,9 +39,9 @@ export const useGptStore = create<MessageStore>((set) => ({
 }));
 
 /**
- * Custom Zustand store for Deepseek message management.
+ * Custom Zustand store for Gemini message management.
  */
-export const useDeepseekStore = create<MessageStore>((set) => ({
+export const useGeminiStore = create<MessageStore>((set) => ({
   messages: [],
 
   addConversation: (message) => {
@@ -58,9 +58,9 @@ export const useDeepseekStore = create<MessageStore>((set) => ({
 }));
 
 /**
- * Custom Zustand store for Mistral message management.
+ * Custom Zustand store for Meta message management.
  */
-export const useMistralStore = create<MessageStore>((set) => ({
+export const useMetaStore = create<MessageStore>((set) => ({
   messages: [],
 
   addConversation: (message) => {
@@ -97,6 +97,19 @@ type ChatHistoryStore = {
   appendChat: (chats: Chat[]) => void;
 
   /**
+   * Removes a single chat from the history.
+   * @param {string} chatUUID - The chatUUID to remove.
+   */
+  removeChat: (chatUUID: string) => void;
+
+  /**
+   * Updates the name of a specific chat.
+   * @param {string} chatUUID - The chatUUID to update.
+   * @param {string} newName - The new name of the chat.
+   */
+  updateChatName: (chatUUID: string, newName: string) => void;
+
+  /**
    * Clears the entire chat history.
    * Removes all chats from the history array.
    */
@@ -122,6 +135,18 @@ export const useChatHistoryStore = create<ChatHistoryStore>((set) => ({
   appendChat: (chats) => {
     set((state) => ({
       chats: [...state.chats, ...chats], // Append chats immutably
+    }));
+  },
+
+  removeChat: (chatUUID) => {
+    set((state) => ({
+      chats: state.chats.filter((c) => c.chatUUID !== chatUUID),
+    }));
+  },
+
+  updateChatName: (chatUUID, newName) => {
+    set((state) => ({
+      chats: state.chats.map((c) => c.chatUUID === chatUUID ? { ...c, chatName: newName } : c),
     }));
   },
 

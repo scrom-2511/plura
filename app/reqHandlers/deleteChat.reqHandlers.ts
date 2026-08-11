@@ -15,7 +15,7 @@ export const deleteChat = async (options: OptionsMenu): Promise<ApiResponse<void
 
   try {
     // Make POST request to deleteChat API endpoint with chatID
-    await axios.post("http://localhost:3000/api/deleteChat", { chatID: options.componentID }, { withCredentials: true });
+    await axios.post("http://localhost:3000/api/deleteChat", { chatUUID: options.componentID }, { withCredentials: true });
 
     // Return success response with no data
     return {
