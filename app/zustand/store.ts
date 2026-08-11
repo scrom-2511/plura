@@ -125,3 +125,15 @@ export const useOptionsMenuStore = create<OptionsMenuStore>((set) => ({
     }))
   }
 }))
+
+type SidebarStore = {
+  isOpen: boolean;
+  toggleSidebar: () => void;
+  setSidebar: (isOpen: boolean) => void;
+};
+
+export const useSidebarStore = create<SidebarStore>((set) => ({
+  isOpen: true, // Default open
+  toggleSidebar: () => set((state) => ({ isOpen: !state.isOpen })),
+  setSidebar: (isOpen) => set({ isOpen }),
+}));

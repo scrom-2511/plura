@@ -18,7 +18,7 @@ const PromptBox = ({ prompt, setPrompt, handleOnClick }: PromptBoxProps) => {
 
   return (
     // Container div for textarea and button
-    <div className="w-full col-span-4 lg:col-span-0 lg:col-start-1">
+    <div className="w-full">
       <div className="bg-input border border-input-border rounded-2xl flex items-center px-6 py-4 shadow-lg transition-all focus-within:ring-2 focus-within:ring-accent/50 focus-within:border-accent mt-2">
         {/* Textarea for user input */}
         <textarea

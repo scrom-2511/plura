@@ -223,49 +223,60 @@ const Chatcomponent = () => {
   };
 
   return (
-    <>
+    <div className="flex flex-col h-full w-full max-w-full overflow-hidden">
+      <div className="flex-1 overflow-x-auto overflow-y-hidden flex gap-4 snap-x pt-16 px-4 md:px-8 pb-4 scroll-smooth scrollbar-hide">
       {chatComponent ? (
         <>
-          <ChatPanel
-            title="CHATGPT"
-            messages={messagesGpt}
-            newConversation={newConversationGpt}
-            currentPrompt={currentPrompt}
-            liveResponse={gptResponse}
-          />
-          <ChatPanel
-            title="GEMINI"
-            messages={messagesGemini}
-            newConversation={newConversationGemini}
-            currentPrompt={currentPrompt}
-            liveResponse={geminiResponse}
-          />
-          <ChatPanel
-            title="META"
-            messages={messagesMeta}
-            newConversation={newConversationMeta}
-            currentPrompt={currentPrompt}
-            liveResponse={metaResponse}
-          />
+          <div className="min-w-[320px] w-[85vw] md:w-auto flex-1 snap-start h-full shrink-0">
+             <ChatPanel
+               title="CHATGPT"
+               messages={messagesGpt}
+               newConversation={newConversationGpt}
+               currentPrompt={currentPrompt}
+               liveResponse={gptResponse}
+             />
+          </div>
+          <div className="min-w-[320px] w-[85vw] md:w-auto flex-1 snap-start h-full shrink-0">
+             <ChatPanel
+               title="GEMINI"
+               messages={messagesGemini}
+               newConversation={newConversationGemini}
+               currentPrompt={currentPrompt}
+               liveResponse={geminiResponse}
+             />
+          </div>
+          <div className="min-w-[320px] w-[85vw] md:w-auto flex-1 snap-start h-full shrink-0">
+             <ChatPanel
+               title="META"
+               messages={messagesMeta}
+               newConversation={newConversationMeta}
+               currentPrompt={currentPrompt}
+               liveResponse={metaResponse}
+             />
+          </div>
         </>
       ) : (
         <>
           {["CHATGPT", "GEMINI", "META"].map((model) => (
-            <div
-              key={model}
-              className="flex flex-col items-center justify-center bg-background border border-input-border rounded-3xl h-full p-8 transition-all duration-500 hover:bg-input hover:border-accent/50 hover:shadow-2xl hover:shadow-accent/10 hover:-translate-y-1.5 group cursor-default"
-            >
-              <div className="text-foreground tracking-[0.25em] text-xs font-extrabold uppercase mb-2">{model}</div>
-              <p className="text-[11px] text-secondary/70 text-center leading-relaxed max-w-[80%]">
-                Ready to respond intelligently.
-              </p>
-            </div>
+             <div className="min-w-[320px] w-[85vw] md:w-auto flex-1 snap-start h-full shrink-0" key={model}>
+                 <div
+                   className="flex flex-col items-center justify-center bg-background border border-input-border rounded-3xl h-full p-8 transition-all duration-500 hover:bg-input hover:border-accent/50 hover:shadow-2xl hover:shadow-accent/10 hover:-translate-y-1.5 group cursor-default"
+                 >
+                   <div className="text-foreground tracking-[0.25em] text-xs font-extrabold uppercase mb-2">{model}</div>
+                   <p className="text-[11px] text-secondary/70 text-center leading-relaxed max-w-[80%]">
+                     Ready to respond intelligently.
+                   </p>
+                 </div>
+             </div>
           ))}
         </>
       )}
+      </div>
 
-      <PromptBox prompt={prompt} setPrompt={setPrompt} handleOnClick={handleOnClick} />
-    </>
+      <div className="shrink-0 w-full px-4 md:px-8 pb-6">
+        <PromptBox prompt={prompt} setPrompt={setPrompt} handleOnClick={handleOnClick} />
+      </div>
+    </div>
   );
 };
 
