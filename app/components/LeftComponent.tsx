@@ -11,32 +11,27 @@ const LeftComponent = () => {
 
   const setOptionsMenu = useOptionsMenuStore((state) => state.setOptions)
 
-
-  // Zustand store hooks
   const { chats, appendChat, clearChat } = useChatHistoryStore();
-  
+
   useEffect(() => {
     if (hasLoadedRef.current) return;
     hasLoadedRef.current = true;
-    // Async function to fetch chat history for userID=1 and page=1
+
     const getChatHistory = async () => {
       try {
         const result = await chatHistory(1, 1);
-  
+
         if (result.success) {
-          // On success, log data and update chat state
           console.log(result.data.data);
           appendChat(result.data.data);
         } else {
-          // Log error if API call was unsuccessful
           console.error("Failed to fetch chat history", result.error);
         }
       } catch (err) {
-        // Catch any unexpected errors
         console.error("Unexpected error fetching chat history:", err);
       }
     };
-  
+
     getChatHistory();
     return () => {
       clearChat()
@@ -45,7 +40,7 @@ const LeftComponent = () => {
 
   const handleOnClickMenu = (e: React.MouseEvent<HTMLElement>, componentID: string) => {
     e.stopPropagation();
-    const options: OptionsMenu =  {x: e.clientX, y: e.clientY, componentID, visibility:true}
+    const options: OptionsMenu = { x: e.clientX, y: e.clientY, componentID, visibility: true }
     setOptionsMenu(options)
   }
 
@@ -53,8 +48,8 @@ const LeftComponent = () => {
     <div className="w-full flex flex-col h-full bg-background border-r border-input-border overflow-hidden">
       {/* Top Section: NEW CHAT button and Search bar */}
       <div className="w-full flex flex-col items-center gap-4 p-6 shrink-0">
-        <button 
-          className="bg-accent text-white rounded-xl w-full h-12 text-sm font-bold shadow-md shadow-accent/20 hover:shadow-accent/40 hover:-translate-y-0.5 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer" 
+        <button
+          className="bg-accent text-white rounded-xl w-full h-12 text-sm font-bold shadow-md shadow-accent/20 hover:shadow-accent/40 hover:-translate-y-0.5 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
           onClick={() => router.push("/chat/newChat")}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -68,10 +63,10 @@ const LeftComponent = () => {
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input 
-            type="text" 
-            className="bg-input text-foreground border border-input-border w-full rounded-xl h-11 text-[13px] focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent pl-10 pr-4 transition-all placeholder-secondary" 
-            placeholder="Search chats..." 
+          <input
+            type="text"
+            className="bg-input text-foreground border border-input-border w-full rounded-xl h-11 text-[13px] focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent pl-10 pr-4 transition-all placeholder-secondary"
+            placeholder="Search chats..."
           />
         </div>
       </div>
@@ -94,7 +89,7 @@ const LeftComponent = () => {
               </div>
               <h3 className="font-medium text-sm text-foreground truncate">{chat.chatName}</h3>
             </div>
-            <button 
+            <button
               className="opacity-0 group-hover:opacity-100 p-2 hover:bg-input-border rounded-lg transition-all"
               onClick={(e) => handleOnClickMenu(e, chat.chatUUID)}
             >

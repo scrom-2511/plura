@@ -1,5 +1,3 @@
-// src/schemas/chats.ts
-
 import { z } from 'zod'
 
 export const createChatSchema = z.object({

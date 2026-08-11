@@ -6,13 +6,7 @@ import { OptionsMenu, useOptionsMenuStore, useChatHistoryStore } from "../zustan
 import { deleteChat } from "../reqHandlers/deleteChat.reqHandlers";
 import { renameChat } from "../reqHandlers/renameChat.reqHandlers";
 
-/**
- * UI Component for rendering chat options like renaming and deleting a chat.
- */
 const OptionsComponent = () => {
-  /* ====
-   * Zustand Global Store State
-   * ==== */
   const options = useOptionsMenuStore((state) => state.options);
   const setOptionsMenu = useOptionsMenuStore((state) => state.setOptions);
 
@@ -22,23 +16,13 @@ const OptionsComponent = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  /* ====
-   * Local Component State
-   * ==== */
   const [renameComponent, setRenameComponent] = useState<boolean>(false);
   const [newName, setNewName] = useState<string>("");
 
-  /* ====
-   * Event Handlers
-   * ==== */
-
-  /**
-   * Handles deleting a chat based on current options
-   */
   const handleOnClickDeleteOptionClick = async (): Promise<void> => {
     try {
       setOptionsMenu({ ...options, visibility: false });
-      const res = await deleteChat(options); // Call API to delete chat
+      const res = await deleteChat(options);
       if (res.success) {
         removeChat(options.componentID);
         if (pathname === `/chat/${options.componentID}`) {
@@ -46,43 +30,34 @@ const OptionsComponent = () => {
         }
       }
     } catch (error) {
-      console.error("Failed to delete chat:", error); // Error logging
+      console.error("Failed to delete chat:", error);
     }
   };
 
-  /**
-   * Opens rename input field
-   */
   const handleOnClickRenameOptionClick = (): void => {
     setOptionsMenu({ ...options, visibility: false });
-    setRenameComponent(true); // Show rename input UI
+    setRenameComponent(true);
   };
 
-  /**
-   * Handles renaming the chat with the input name
-   */
   const handleOnClickRenameChatClick = async (): Promise<void> => {
-    // Validate input before sending to API
     if (!newName.trim()) {
-      console.warn("Chat name cannot be empty."); // Input validation
+      console.warn("Chat name cannot be empty.");
       return;
     }
 
     try {
-      const res = await renameChat(options, newName); // Call API to rename chat
+      const res = await renameChat(options, newName);
       if (res.success) {
         updateChatName(options.componentID, newName);
       }
-      setRenameComponent(false); // Hide rename input after success
+      setRenameComponent(false);
     } catch (error) {
-      console.error("Failed to rename chat:", error); // Error logging
+      console.error("Failed to rename chat:", error);
     }
   };
 
-  // Ref for rename modal
   const renameRef = useRef<HTMLDivElement>(null);
 
-  // Close modal when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (renameRef.current && !renameRef.current.contains(e.target as Node)) {
@@ -116,9 +91,6 @@ const OptionsComponent = () => {
     };
   }, [options]);
 
-  /* ====
-   * Render UI
-   * ==== */
   return (
     <>
       {/* Rename Chat Modal */}
@@ -133,7 +105,7 @@ const OptionsComponent = () => {
               type="text"
               placeholder="Add a new name"
               className="bg-background border border-input-border text-foreground w-full rounded-xl h-11 text-[14px] focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent px-4 mb-6 placeholder-secondary transition-all"
-              onChange={(e) => setNewName(e.target.value)} // Update input state
+              onChange={(e) => setNewName(e.target.value)}
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleOnClickRenameChatClick();

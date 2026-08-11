@@ -22,7 +22,6 @@ export const streamModel = async (
   chatID: string,
   conversationID: string
 ): Promise<string> => {
-  // --- Input validation ---
   const validateData = streamModelSchema.safeParse({
     model,
     controller,
@@ -37,17 +36,14 @@ export const streamModel = async (
     throw new Error("Invalid data");
   }
 
-  // --- Fetch conversation context ---
   const context = await contextProvider(userID, model, chatID);
 
-  // Prepare system message content based on available context
   const systemContent = context
     ? `You are an AI assistant. Use the following context to maintain a natural, continuous flow in our conversation: ${context}. Do not greet me in every response. Avoid phrases like "from the context you provided"—your responses should feel seamless and conversational, as if you already know the context.`
     : "You are an AI assistant";
 
   console.log("Context:", context);
 
-  // --- API call to openrouter.ai ---
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -68,13 +64,11 @@ export const streamModel = async (
   if (!response.ok) {
     const errorText = await response.text();
     console.error(`OpenRouter API Error (${response.status}):`, errorText);
-    // You can optionally enqueue the error to the stream so it shows in the UI
     controller.enqueue("Error getting response");
     controller.close();
     return "Error getting response";
   }
 
-  // Get the reader from response body to read streamed data
   const reader = response.body?.getReader();
   if (!reader) {
     throw new Error("Response body is not readable");
@@ -115,19 +109,15 @@ export const streamModel = async (
   };
 
   try {
-    // --- Read stream loop ---
     while (true) {
       const { done, value } = await reader.read();
 
-      // If stream is done organically without [DONE], save conversation and return the full response
       if (done) {
         return await saveConversationAndReturn(finalResponse);
       }
 
-      // Decode chunk and append to buffer
       buffer += decoder.decode(value, { stream: true });
 
-      // Process lines in buffer (each line corresponds to a data event)
       let innerBreak = false;
       while (true) {
         const lineEnd = buffer.indexOf("\n");
@@ -139,7 +129,6 @@ export const streamModel = async (
         if (line.startsWith("data: ")) {
           const data = line.slice(6);
 
-          // Stream end marker detected
           if (data === "[DONE]") {
             controller.close();
             innerBreak = true;
@@ -147,18 +136,15 @@ export const streamModel = async (
           }
 
           try {
-            // Parse JSON chunk from stream
             const parsed = JSON.parse(data);
             const content = parsed.choices[0].delta.content;
 
-            // If content exists, enqueue and append to final response
             if (content) {
               console.log("Streaming content:", content);
               controller.enqueue(content);
               finalResponse += content;
             }
           } catch {
-            // Ignore invalid JSON chunks silently
           }
         }
       }

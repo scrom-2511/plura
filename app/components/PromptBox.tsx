@@ -9,7 +9,6 @@ type PromptBoxProps = {
 };
 
 const PromptBox = ({ prompt, setPrompt, handleOnClick }: PromptBoxProps) => {
-  // Handler for textarea changes with input validation to ensure string value
   const onPromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     if (typeof newValue === "string") {
