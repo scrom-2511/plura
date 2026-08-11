@@ -75,15 +75,15 @@ const Chatcomponent = () => {
       setCurrentPrompt(pendingPrompt);
       setChatComponent(true);
       setPrompt(""); // Clear the input
-      
+
       // Remove from sessionStorage
       sessionStorage.removeItem("pendingPrompt");
 
       const newConversationID = uuidv6();
-      
+
       // Start streaming with the retrieved prompt
       startStreaming(newConversationID, url.chatID as string, pendingPrompt);
-    }else{
+    } else {
       const getConversations = async () => {
         try {
           const result = await conversations(1, url.chatID as string);
@@ -97,7 +97,7 @@ const Chatcomponent = () => {
           console.error("Error fetching conversations:", error);
         }
       };
-  
+
       getConversations();
     }
   }, [url.chatID, pathname]);
@@ -142,16 +142,6 @@ const Chatcomponent = () => {
     };
   }, [conversation, addConversationGpt, addConversationDeepseek, addConversationMistral, addConversationQwen, clearGpt, clearDeepseek, clearMistral, clearQwen]);
 
-  /**
-   * Streams AI model response chunk by chunk.
-   * @param model - AI model name.
-   * @param setResponse - React state setter for live response.
-   * @param addToStore - Function to add conversation to zustand store.
-   * @param setNewConversation - React state setter to track new conversation status.
-   * @param conversationID - Unique conversation identifier.
-   * @param chatID - Current chat identifier.
-   * @param promptText - Optional prompt text to use instead of component state.
-   */
   const streamModel = async (
     model: string,
     setResponse: React.Dispatch<React.SetStateAction<string>>,
@@ -163,7 +153,7 @@ const Chatcomponent = () => {
   ): Promise<void> => {
     // Use provided prompt or fall back to component state
     const promptToUse = promptText || prompt;
-    
+
     // Input validation: do not proceed if prompt is empty
     if (!promptToUse.trim()) return;
 
@@ -176,7 +166,7 @@ const Chatcomponent = () => {
       setCurrentPrompt(promptToUse);
       setPrompt(""); // Clear prompt input
     }
-    
+
     setNewConversation(true); // Mark new conversation as in-progress
 
     try {
@@ -229,7 +219,7 @@ const Chatcomponent = () => {
       newChatID = uuidv6();
 
       const chat: Chat = { chatName: "New Chat", chatUUID: newChatID };
-      
+
       addChat(chat);
 
       // Save the prompt temporarily in sessionStorage
@@ -244,12 +234,6 @@ const Chatcomponent = () => {
     startStreaming(newConversationID, newChatID);
   };
 
-  /**
-   * Unified streaming function that handles both normal and sessionStorage flows.
-   * @param conversationID - Unique conversation identifier.
-   * @param chatID - Current chat identifier.
-   * @param promptText - Optional prompt text for sessionStorage flow.
-   */
   const startStreaming = async (conversationID: string, chatID: string, promptText?: string) => {
     await Promise.allSettled([
       streamModel("chatgpt", setGptResponse, addConversationGpt, setNewConversationGpt, conversationID, chatID, promptText),
@@ -311,15 +295,6 @@ type ChatPanelProps = {
   liveResponse: string;
 };
 
-/**
- * ChatPanel component displays conversation for a specific AI model.
- * @param props - Component props.
- * @param props.title - Title of the AI model.
- * @param props.messages - Array of conversation messages.
- * @param props.newConversation - Indicates if a new conversation is ongoing.
- * @param props.currentPrompt - Current user prompt.
- * @param props.liveResponse - Live AI response streaming.
- */
 const ChatPanel = ({
   title,
   messages,
@@ -327,30 +302,52 @@ const ChatPanel = ({
   currentPrompt,
   liveResponse,
 }: ChatPanelProps) => (
-  <div className="bg-primary rounded-2xl overflow-y-scroll">
-    <div className="text-[12px] p-10 text-secondary">
-      <h1 className="text-center text-sm font-bold mb-2">{title}</h1>
+  <div className="bg-background border border-input-border rounded-3xl flex flex-col h-full overflow-hidden shadow-xl transition-all duration-300">
+    {/* Header */}
+    <div className="sticky top-0 bg-background/95 z-10 px-4 py-4 border-b border-input-border shadow-sm flex items-center justify-center backdrop-blur-md">
+      <div className="w-2 h-2 rounded-full bg-accent animate-pulse mr-3 hidden sm:block"></div>
+      <h1 className="text-center text-xs font-extrabold tracking-[0.2em] text-foreground uppercase">{title}</h1>
+    </div>
+
+    {/* Messages */}
+    <div className="flex-1 overflow-y-auto p-4 md:p-6 text-sm space-y-6 scroll-smooth">
+      {messages.length === 0 && !newConversation && (
+        <div className="h-full flex flex-col items-center justify-center opacity-40">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 mb-3 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          <p className="text-secondary tracking-widest uppercase text-[10px] font-bold">No Messages</p>
+        </div>
+      )}
+
       {messages.map((message, index) => (
-        <div key={`${message.prompt}-${index}`}>
-          <div>
-            <h6 className="font-bold">User</h6>
-            <p>{message.prompt}</p>
+        <div key={`${message.prompt}-${index}`} className="flex flex-col gap-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          {/* User Side */}
+          <div className="self-end max-w-[90%] bg-accent text-white px-5 py-3.5 rounded-2xl rounded-tr-sm shadow-md">
+            <p className="leading-relaxed whitespace-pre-wrap">{message.prompt}</p>
           </div>
-          <div>
-            <h6 className="font-bold">Model</h6>
-            <p>{message.response}</p>
+          {/* Model Side */}
+          <div className="self-start max-w-[95%] bg-input border border-input-border text-foreground px-5 py-3.5 rounded-2xl rounded-tl-sm shadow-sm">
+            <p className="leading-relaxed whitespace-pre-wrap">{message.response}</p>
           </div>
         </div>
       ))}
+      
       {newConversation && (
-        <div>
-          <div>
-            <h6 className="font-bold">User</h6>
-            <p>{currentPrompt}</p>
+        <div className="flex flex-col gap-5 animate-in fade-in duration-300">
+          <div className="self-end max-w-[90%] bg-accent text-white px-5 py-3.5 rounded-2xl rounded-tr-sm shadow-md">
+            <p className="leading-relaxed whitespace-pre-wrap">{currentPrompt}</p>
           </div>
-          <div>
-            <h6 className="font-bold">Model</h6>
-            <p>{liveResponse}</p>
+          <div className="self-start max-w-[95%] bg-input border border-input-border text-foreground px-5 py-3.5 rounded-2xl rounded-tl-sm shadow-sm relative min-w-12">
+            <p className="leading-relaxed whitespace-pre-wrap">{liveResponse}</p>
+            {/* Blinking indicator for streaming */}
+            {!liveResponse && (
+              <div className="flex gap-1.5 items-center justify-center h-5">
+                <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-bounce"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-bounce delay-150" style={{ animationDelay: '150ms' }}></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-bounce delay-300" style={{ animationDelay: '300ms' }}></span>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -363,9 +360,20 @@ const ChatPanel = ({
  */
 const NoChatComponent = () => (
   <>
-    {["CHATGPT", "DEEPSEEK", "MISTRAL", "LLAMA"].map((model) => (
-      <div key={model} className="flex justify-center bg-primary rounded-2xl h-40 self-center mb-4">
-        <div className="self-center text-center">{model}</div>
+    {["CHATGPT", "DEEPSEEK", "MISTRAL", "QWEN"].map((model) => (
+      <div 
+        key={model} 
+        className="flex flex-col items-center justify-center bg-background border border-input-border rounded-3xl h-full p-8 transition-all duration-500 hover:bg-input hover:border-accent/50 hover:shadow-2xl hover:shadow-accent/10 hover:-translate-y-1.5 group cursor-default"
+      >
+        <div className="w-16 h-16 rounded-2xl bg-input border border-input-border flex items-center justify-center mb-6 shadow-sm text-secondary group-hover:text-accent group-hover:bg-background transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-accent/20">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div className="text-foreground tracking-[0.25em] text-xs font-extrabold uppercase mb-2">{model}</div>
+        <p className="text-[11px] text-secondary/70 text-center leading-relaxed max-w-[80%]">
+          Ready to respond intelligently.
+        </p>
       </div>
     ))}
   </>
