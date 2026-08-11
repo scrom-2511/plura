@@ -1,6 +1,6 @@
 import { Message, modelFieldMap, ModelTypes } from "@/types/types";
 import { contextProvider, contextSetter } from "./contextHandler";
-import { prisma } from "../lib/prisma";
+import prisma from "@/lib/prisma";
 
 export const streamModel = async (
   model: ModelTypes,

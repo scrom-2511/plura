@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../lib/prisma";
+import prisma from "@/lib/prisma";
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   // Parse JSON body to extract userID and page number

@@ -1,5 +1,5 @@
 import { Message, modelFieldMap, ModelTypes } from "@/types/types";
-import { prisma } from "../lib/prisma";
+import prisma from "@/lib/prisma";
 import { client, connectClient } from "./redisClient.utils";
 
 export const contextProvider = async (

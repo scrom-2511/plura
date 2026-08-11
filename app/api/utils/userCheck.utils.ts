@@ -1,4 +1,4 @@
-import { prisma } from "../lib/prisma";
+import prisma from "@/lib/prisma";
 import { client, connectClient } from "./redisClient.utils";
 
 export const userCheck = async (userID: number): Promise<boolean> => {
