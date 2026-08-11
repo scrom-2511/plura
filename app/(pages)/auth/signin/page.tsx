@@ -92,7 +92,7 @@ const Signin = () => {
           </div>
         </div>
 
-        <div className="flex gap-4">
+        {/* <div className="flex gap-4">
           <button
             type="button"
             className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-input-border bg-input hover:bg-input-border/50 transition-colors text-sm font-medium text-secondary"
@@ -114,7 +114,7 @@ const Signin = () => {
             </svg>
             Apple
           </button>
-        </div>
+        </div> */}
 
         <p className="text-center text-sm text-secondary">
           Don’t have an account?{" "}

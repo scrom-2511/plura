@@ -27,7 +27,7 @@ const SignUp = () => {
           password,
         }),
       });
-      
+
       if (!res.ok) {
         throw new Error("Failed to sign up");
       }
@@ -118,7 +118,7 @@ const SignUp = () => {
           </div>
         </div>
 
-        <div className="flex gap-4">
+        {/* <div className="flex gap-4">
           <button
             type="button"
             className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-input-border bg-input hover:bg-input-border/50 transition-colors text-sm font-medium text-secondary"
@@ -140,7 +140,7 @@ const SignUp = () => {
             </svg>
             Continue with Apple
           </button>
-        </div>
+        </div> */}
 
         <div className="text-center space-y-2">
           <p className="text-sm text-secondary">
