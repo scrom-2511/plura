@@ -1,29 +1,30 @@
 import { NextAuthOptions } from "next-auth";
-import CredentialsProvider  from "next-auth/providers/credentials";
-import { prisma } from "./prisma";
+import CredentialsProvider from "next-auth/providers/credentials";
+import prisma from "./prisma";
+
 export const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
             name: "Credentials",
             credentials: {
-                email: {label:"Email", type:"text"},
-                password: {label:"Password", type:"password"}
+                email: { label: "Email", type: "text" },
+                password: { label: "Password", type: "password" }
             },
-            async authorize(credentials): Promise<any>{
-                if(!credentials?.email || !credentials?.password){
+            async authorize(credentials): Promise<any> {
+                if (!credentials?.email || !credentials?.password) {
                     throw new Error("Missing email or pass")
                 }
                 try {
                     const user = await prisma.user.findFirst({
-                        where:{
+                        where: {
                             email: credentials.email
                         }
                     })
-                    if(!user){
+                    if (!user) {
                         throw new Error("No user found")
                     }
 
-                    if(user.password === credentials.password){
+                    if (user.password === credentials.password) {
                         return {
                             id: user.id, email: user.email
                         }
@@ -35,27 +36,27 @@ export const authOptions: NextAuthOptions = {
         })
     ],
     callbacks: {
-        async jwt({token, user}){
-            if(user){
+        async jwt({ token, user }) {
+            if (user) {
                 token.id = user.id
             }
             return token
         },
-        async session({session, token}){
+        async session({ session, token }) {
 
-            if(session.user){
+            if (session.user) {
                 session.user.id = token.id as string
             }
 
             return session
         }
     },
-    pages:{
-        signIn:"/auth/signin",
+    pages: {
+        signIn: "/auth/signin",
     },
     session: {
         strategy: "jwt",
-        maxAge: 30*24*60*60
+        maxAge: 30 * 24 * 60 * 60
     },
     secret: process.env.NEXTAUTH_SECRET
 }

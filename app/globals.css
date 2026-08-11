@@ -4,7 +4,10 @@
   --background: #ffffff;
   --foreground: #171717;
   --primary: #1c1c1c;
-  --secondary: #c9c9c9
+  --secondary: #c9c9c9;
+  --accent: #62509D;
+  --input-bg: #1C1B24;
+  --input-border: #2D2C38;
 }
 
 @theme inline {
@@ -14,14 +17,23 @@
   --font-mono: var(--font-geist-mono);
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-input: var(--input-bg);
+  --color-input-border: var(--input-border);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0D0C12;
+    --foreground: #EDEDED;
+    --primary: #FFFFFF;
+    --secondary: #A4A4B4;
+    --accent: #62509D;
+    --input-bg: #1C1B24;
+    --input-border: #2D2C38;
   }
 }
+
 
 ::-webkit-scrollbar {
   display: none;
