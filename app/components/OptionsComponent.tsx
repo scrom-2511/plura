@@ -9,21 +9,21 @@ import { renameChat } from "../reqHandlers/renameChat.reqHandlers";
  * UI Component for rendering chat options like renaming and deleting a chat.
  */
 const OptionsComponent = () => {
-  /* ============================
+  /* ====
    * Zustand Global Store State
-   * ============================ */
+   * ==== */
   const options = useOptionsMenuStore((state) => state.options);
   const setOptionsMenu = useOptionsMenuStore((state) => state.setOptions);
 
-  /* ============================
+  /* ====
    * Local Component State
-   * ============================ */
+   * ==== */
   const [renameComponent, setRenameComponent] = useState<boolean>(false);
   const [newName, setNewName] = useState<string>("");
 
-  /* ============================
+  /* ====
    * Event Handlers
-   * ============================ */
+   * ==== */
 
   /**
    * Handles deleting a chat based on current options
@@ -100,9 +100,9 @@ const OptionsComponent = () => {
     };
   }, [options]);
 
-  /* ============================
+  /* ====
    * Render UI
-   * ============================ */
+   * ==== */
   return (
     <>
       {/* Rename Chat Modal */}
