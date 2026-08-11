@@ -1,6 +1,17 @@
 import { Message, modelFieldMap, ModelTypes } from "@/types/types";
 import { contextProvider, contextSetter } from "./contextHandler";
 import prisma from "@/lib/prisma";
+import z from "zod";
+
+const streamModelSchema = z.object({
+  model: z.nativeEnum(ModelTypes),
+  controller: z.any(),
+  prompt: z.string(),
+  userID: z.number(),
+  apikey: z.string(),
+  chatID: z.string(),
+  conversationID: z.string(),
+});
 
 export const streamModel = async (
   model: ModelTypes,
@@ -12,13 +23,19 @@ export const streamModel = async (
   conversationID: string
 ): Promise<string> => {
   // --- Input validation ---
-  if (!model) throw new Error("Model is required");
-  if (!controller) throw new Error("ReadableStreamDefaultController is required");
-  if (!prompt || typeof prompt !== "string") throw new Error("Valid prompt is required");
-  if (!userID || typeof userID !== "number") throw new Error("Valid userID is required");
-  if (!apikey || typeof apikey !== "string") throw new Error("Valid apikey is required");
-  if (!chatID || typeof chatID !== "string") throw new Error("Valid chatID is required");
-  if (!conversationID || typeof conversationID !== "string") throw new Error("Valid conversationID is required");
+  const validateData = streamModelSchema.safeParse({
+    model,
+    controller,
+    prompt,
+    userID,
+    apikey,
+    chatID,
+    conversationID,
+  });
+
+  if (!validateData.success) {
+    throw new Error("Invalid data");
+  }
 
   // --- Fetch conversation context ---
   const context = await contextProvider(userID, model, chatID);
@@ -48,6 +65,15 @@ export const streamModel = async (
     }),
   });
 
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`OpenRouter API Error (${response.status}):`, errorText);
+    // You can optionally enqueue the error to the stream so it shows in the UI
+    controller.enqueue("Error getting response");
+    controller.close();
+    return "Error getting response";
+  }
+
   // Get the reader from response body to read streamed data
   const reader = response.body?.getReader();
   if (!reader) {
@@ -58,48 +84,51 @@ export const streamModel = async (
   let buffer = "";
   let finalResponse = "";
 
+  const saveConversationAndReturn = async (res: string) => {
+    const conversation: Message = { prompt, response: res };
+    await contextSetter(userID, context, model, conversation, chatID);
+
+    try {
+      await prisma.chat.upsert({
+        where: { chatUUID: chatID },
+        update: { updatedAt: new Date() },
+        create: { chatUUID: chatID, chatName: "New Chat", userID },
+      });
+
+      await prisma.conversation.upsert({
+        where: { conversationID },
+        update: {
+          [modelFieldMap[model]]: res,
+        },
+        create: {
+          conversationID,
+          chatID,
+          userID,
+          prompt,
+          [modelFieldMap[model]]: res,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to save conversation:", error);
+    }
+    return res;
+  };
+
   try {
     // --- Read stream loop ---
     while (true) {
       const { done, value } = await reader.read();
 
-      // If stream is done, save conversation and return the full response
+      // If stream is done organically without [DONE], save conversation and return the full response
       if (done) {
-        const conversation: Message = { prompt, response: finalResponse };
-        await contextSetter(userID, context, model, conversation, chatID);
-
-        // --- Persist chat and conversation to database ---
-        try {
-          await prisma.chat.upsert({
-            where: { chatUUID: chatID },
-            update: { updatedAt: new Date() },
-            create: { chatUUID: chatID, chatName: "New Chat", userID },
-          });
-
-          await prisma.conversation.upsert({
-            where: { conversationID },
-            update: {
-              [modelFieldMap[model]]: finalResponse,
-            },
-            create: {
-              conversationID,
-              chatID,
-              userID,
-              prompt,
-              [modelFieldMap[model]]: finalResponse,
-            },
-          });
-        } catch (error) {
-          console.error("Failed to save conversation:", error);
-        }
-
-        return finalResponse;
+        return await saveConversationAndReturn(finalResponse);
       }
 
       // Decode chunk and append to buffer
       buffer += decoder.decode(value, { stream: true });
 
       // Process lines in buffer (each line corresponds to a data event)
+      let innerBreak = false;
       while (true) {
         const lineEnd = buffer.indexOf("\n");
         if (lineEnd === -1) break;
@@ -113,6 +142,7 @@ export const streamModel = async (
           // Stream end marker detected
           if (data === "[DONE]") {
             controller.close();
+            innerBreak = true;
             break;
           }
 
@@ -131,6 +161,10 @@ export const streamModel = async (
             // Ignore invalid JSON chunks silently
           }
         }
+      }
+
+      if (innerBreak) {
+        return await saveConversationAndReturn(finalResponse);
       }
     }
   } catch (error) {

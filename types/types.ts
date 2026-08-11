@@ -1,18 +1,17 @@
-import { Conversation } from "@prisma/client";
+import { Conversation } from "@/app/generated/prisma/client";
+import z from "zod";
 
 export enum ModelTypes {
-  GPT = "openai/gpt-4o",
-  DEEPSEEK = "z-ai/glm-4.5-air:free",
-  MISTRAL = "mistralai/mistral-small-3.2-24b-instruct:free",
-  QWEN = "moonshotai/kimi-k2:free",
+  GPT = "openai/gpt-oss-20b:free",
+  DEEPSEEK = "google/gemma-4-31b-it:free",
+  MISTRAL = "nvidia/nemotron-3.5-content-safety:free",
 }
 
 export const modelFieldMap: Record<ModelTypes, keyof Conversation> = {
-    [ModelTypes.GPT]: "gpt",
-    [ModelTypes.DEEPSEEK]: "deepseek",
-    [ModelTypes.MISTRAL]: "mistral",
-    [ModelTypes.QWEN]: "qwen",
-  };
+  [ModelTypes.GPT]: "gpt",
+  [ModelTypes.DEEPSEEK]: "deepseek",
+  [ModelTypes.MISTRAL]: "mistral",
+};
 
 export type Message = {
   prompt: string;
@@ -26,7 +25,6 @@ export type ConversationEntry = {
   gpt: string | null;
   deepseek: string | null;
   mistral: string | null;
-  qwen: string | null;
   userID: number;
   chatID: string;
   createdAt: string;
@@ -38,3 +36,10 @@ export interface ApiResponse<T> {
   data: T | null;
   error?: any;
 }
+
+export const aiModelSchema = z.object({
+  prompt: z.string().min(1, "Prompt cannot be empty"),
+  userID: z.number().min(1, "User ID cannot be empty"),
+  conversationID: z.string().min(1, "Conversation ID cannot be empty"),
+  chatID: z.string().min(1, "Chat ID cannot be empty"),
+})

@@ -76,25 +76,6 @@ export const useMistralStore = create<MessageStore>((set) => ({
   clearMessages: () => set({ messages: [] }),
 }));
 
-/**
- * Custom Zustand store for Qwen message management.
- */
-export const useQwenStore = create<MessageStore>((set) => ({
-  messages: [],
-
-  addConversation: (message) => {
-    if (!message || typeof message !== "object") {
-      console.warn("Invalid message provided to addConversation");
-      return;
-    }
-    set((state) => ({
-      messages: [...state.messages, message],
-    }));
-  },
-
-  clearMessages: () => set({ messages: [] }),
-}));
-
 export type Chat = {
   chatName: string;
   chatUUID: string;
@@ -155,12 +136,12 @@ export type OptionsMenu = {
 }
 
 type OptionsMenuStore = {
-  options : OptionsMenu;
+  options: OptionsMenu;
   setOptions: (options: OptionsMenu) => void;
 }
 
 export const useOptionsMenuStore = create<OptionsMenuStore>((set) => ({
-  options:{x: Number.MIN_SAFE_INTEGER, y: Number.MIN_SAFE_INTEGER, componentID:"", visibility: false},
+  options: { x: Number.MIN_SAFE_INTEGER, y: Number.MIN_SAFE_INTEGER, componentID: "", visibility: false },
   setOptions: (options: OptionsMenu) => {
     set((state) => ({
       options
