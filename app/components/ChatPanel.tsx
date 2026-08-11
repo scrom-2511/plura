@@ -13,7 +13,7 @@ export const ChatPanel = ({
     currentPrompt,
     liveResponse,
 }: ChatPanelProps) => (
-    <div className="bg-background border border-input-border rounded-3xl flex flex-col h-full overflow-hidden shadow-xl transition-all duration-500 hover:bg-input/10 hover:border-accent/50 hover:shadow-2xl hover:shadow-accent/10 hover:-translate-y-1.5 group cursor-default">
+    <div className="bg-background border border-input-border rounded-3xl flex flex-col h-full overflow-hidden shadow-xl transition-all duration-500 hover:bg-input/10 hover:border-accent/50 hover:shadow-2xl hover:shadow-accent/10 hover:-translate-y-1.5 group cursor-pointer">
         {/* Header */}
         <div className="sticky top-0 bg-background/95 z-10 px-4 py-4 border-b border-input-border shadow-sm flex items-center justify-center backdrop-blur-md">
             <h1 className="text-center text-xs font-extrabold tracking-[0.2em] text-foreground uppercase">{title}</h1>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { chatHistory } from "../reqHandlers/chatHistory.reqHandler";
 import { OptionsMenu, useChatHistoryStore, useOptionsMenuStore } from "../zustand/store";
@@ -12,6 +12,7 @@ const LeftComponent = () => {
   const setOptionsMenu = useOptionsMenuStore((state) => state.setOptions)
 
   const { chats, appendChat, clearChat } = useChatHistoryStore();
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (hasLoadedRef.current) return;
@@ -46,16 +47,13 @@ const LeftComponent = () => {
 
   return (
     <div className="w-full flex flex-col h-full bg-background border-r border-input-border overflow-hidden">
+      <p className="text-center text-xl font-extrabold tracking-[0.2em] text-foreground uppercase py-6">PLURA</p>
       {/* Top Section: NEW CHAT button and Search bar */}
-      <div className="w-full flex flex-col items-center gap-4 p-6 shrink-0">
+      <div className="w-full flex flex-col items-center gap-4 px-6 shrink-0">
         <button
-          className="bg-accent text-white rounded-xl w-full h-12 text-sm font-bold shadow-md shadow-accent/20 hover:shadow-accent/40 hover:-translate-y-0.5 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+          className="bg-accent text-white rounded-xl w-full h-12 text-[12px] font-bold shadow-md shadow-accent/20 hover:shadow-accent/40 hover:-translate-y-0.5 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
           onClick={() => router.push("/chat/newChat")}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
           NEW CHAT
         </button>
         <div className="relative w-full">
@@ -67,13 +65,19 @@ const LeftComponent = () => {
             type="text"
             className="bg-input text-foreground border border-input-border w-full rounded-xl h-11 text-[13px] focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent pl-10 pr-4 transition-all placeholder-secondary"
             placeholder="Search chats..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
       </div>
 
       {/* Chat List Section */}
       <div className="w-full flex-1 flex flex-col items-center gap-2 overflow-y-auto px-4 pb-6 scrollbar-hide">
-        {chats.map((chat) => (
+        {chats
+          .filter((chat) =>
+            chat.chatName.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+          .map((chat) => (
           <div
             key={chat.chatUUID}
             className="group bg-transparent hover:bg-input border border-transparent hover:border-input-border rounded-xl w-full min-h-16 flex items-center justify-between cursor-pointer px-3 py-2 transition-all"
