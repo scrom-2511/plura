@@ -1,3 +1,33 @@
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
+const MarkdownComponents: any = {
+    h1: ({ node, ...props }: any) => <h1 className="text-2xl font-bold mt-6 mb-4" {...props} />,
+    h2: ({ node, ...props }: any) => <h2 className="text-xl font-bold mt-5 mb-3" {...props} />,
+    h3: ({ node, ...props }: any) => <h3 className="text-lg font-bold mt-4 mb-2" {...props} />,
+    p: ({ node, ...props }: any) => <p className="leading-relaxed mb-4 last:mb-0" {...props} />,
+    ul: ({ node, ...props }: any) => <ul className="list-disc list-outside ml-5 mb-4 space-y-1" {...props} />,
+    ol: ({ node, ...props }: any) => <ol className="list-decimal list-outside ml-5 mb-4 space-y-1" {...props} />,
+    li: ({ node, ...props }: any) => <li className="leading-relaxed" {...props} />,
+    code: ({ node, className, ...props }: any) => {
+        const isInline = !className?.includes('language-');
+        return isInline ? (
+            <code className="bg-foreground/10 px-1.5 py-0.5 rounded text-sm font-mono text-accent" {...props} />
+        ) : (
+            <code className={className} {...props} />
+        )
+    },
+    pre: ({ node, ...props }: any) => (
+        <pre className="bg-foreground/5 p-4 rounded-lg overflow-x-auto mb-4 text-sm font-mono border border-input-border mt-2" {...props} />
+    ),
+    strong: ({ node, ...props }: any) => <strong className="font-bold text-white" {...props} />,
+    a: ({ node, ...props }: any) => <a className="text-white hover:underline break-words" {...props} />,
+    blockquote: ({ node, ...props }: any) => <blockquote className="border-l-4 border-accent pl-4 italic opacity-80 my-4" {...props} />,
+    table: ({ node, ...props }: any) => <div className="overflow-x-auto mb-4 w-full"><table className="w-full text-left border-collapse border border-input-border" {...props} /></div>,
+    th: ({ node, ...props }: any) => <th className="border-b border-input-border bg-input/50 p-2 font-semibold" {...props} />,
+    td: ({ node, ...props }: any) => <td className="border-b border-input-border p-2" {...props} />,
+};
+
 type ChatPanelProps = {
     title: string;
     messages: { prompt: string; response: string }[];
@@ -38,7 +68,9 @@ export const ChatPanel = ({
                     </div>
                     {/* Model Side */}
                     <div className="self-start max-w-[95%] bg-input border border-input-border text-foreground px-5 py-3.5 rounded-2xl rounded-tl-sm shadow-sm">
-                        <p className="leading-relaxed whitespace-pre-wrap">{message.response}</p>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={MarkdownComponents}>
+                            {message.response}
+                        </ReactMarkdown>
                     </div>
                 </div>
             ))}
@@ -49,7 +81,9 @@ export const ChatPanel = ({
                         <p className="leading-relaxed whitespace-pre-wrap">{currentPrompt}</p>
                     </div>
                     <div className="self-start max-w-[95%] bg-input border border-input-border text-foreground px-5 py-3.5 rounded-2xl rounded-tl-sm shadow-sm relative min-w-12">
-                        <p className="leading-relaxed whitespace-pre-wrap">{liveResponse}</p>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={MarkdownComponents}>
+                            {liveResponse}
+                        </ReactMarkdown>
                         {/* Blinking indicator for streaming */}
                         {!liveResponse && (
                             <div className="flex gap-1.5 items-center justify-center h-5">

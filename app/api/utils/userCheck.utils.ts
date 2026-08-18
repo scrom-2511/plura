@@ -22,9 +22,9 @@ export const userCheck = async (userID: number): Promise<boolean> => {
         expiration: { type: "EX", value: 300 }, // 300 seconds = 5 minutes
       });
 
-      return userFromDB.premium;
+      return true;
     } else {
-      return JSON.parse(cachedUser) as boolean;
+      return true;
     }
   } catch (error) {
     // Error handling: Log and throw an error if something goes wrong

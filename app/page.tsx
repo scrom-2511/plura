@@ -17,7 +17,7 @@ export default function Home() {
           <span className="text-xl sm:text-2xl font-extrabold tracking-[0.2em] uppercase text-primary">Plura</span>
         </div>
         <div className="flex items-center gap-4 sm:gap-6">
-          <Link href="/auth/login" className="text-sm font-medium text-secondary hover:text-primary transition-colors hidden sm:block">
+          <Link href="/auth/signin" className="text-sm font-medium text-secondary hover:text-primary transition-colors hidden sm:block">
             Sign In
           </Link>
           <Link
@@ -44,7 +44,7 @@ export default function Home() {
         </h1>
 
         <p className="text-base sm:text-lg md:text-2xl text-secondary max-w-3xl mb-10 md:mb-12 leading-relaxed">
-          Switch seamlessly between the world's most powerful language models in a single, unified interface. Plura brings all your AI conversations into one beautiful workspace.
+          Chat with the world's most powerful language models in a single, unified interface. Plura brings all your AI conversations into one beautiful workspace.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 w-full sm:w-auto px-2 sm:px-0">

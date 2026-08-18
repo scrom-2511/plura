@@ -39,8 +39,8 @@ export const streamModel = async (
   const context = await contextProvider(userID, model, chatID);
 
   const systemContent = context
-    ? `You are an AI assistant. Use the following context to maintain a natural, continuous flow in our conversation: ${context}. Do not greet me in every response. Avoid phrases like "from the context you provided"—your responses should feel seamless and conversational, as if you already know the context.`
-    : "You are an AI assistant";
+    ? `You are an AI assistant. Use the following context to maintain a natural, continuous flow in our conversation: ${context}. Do not greet me in every response. Avoid phrases like "from the context you provided"—your responses should feel seamless and conversational, as if you already know the context. The maximum number of tokens you can use is 1,000, so please make sure the answer is complete within that limit. It should not happen that you provide only a partial answer.`
+    : "You are an AI assistant, The maximum number of tokens you can use is 1,000, so please make sure the answer is complete within that limit. It should not happen that you provide only a partial answer.";
 
   console.log("Context:", context);
 
@@ -57,7 +57,7 @@ export const streamModel = async (
         { role: "user", content: prompt },
       ],
       stream: true,
-      max_tokens: 500,
+      max_tokens: 1000,
     }),
   });
 
