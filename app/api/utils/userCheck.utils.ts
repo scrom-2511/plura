@@ -10,7 +10,7 @@ export const userCheck = async (userId: string): Promise<boolean> => {
       try {
         const cachedUser = await client.get(key);
         if (cachedUser !== null && cachedUser !== undefined) {
-          return JSON.parse(cachedUser) === true;
+          return JSON.parse(cachedUser) > 0;
         }
       } catch (e) {
         console.warn("Redis get user failed:", e);
@@ -28,14 +28,19 @@ export const userCheck = async (userId: string): Promise<boolean> => {
           username: "User",
           email: `${userId}@example.com`,
           password: "password",
-          premium: true,
+          premium: false,
+          credits: 5,
         },
       });
     }
 
+    if (userFromDB.credits <= 0) {
+      return false;
+    }
+
     if (isRedisConnected) {
       try {
-        await client.set(key, JSON.stringify(userFromDB.premium), {
+        await client.set(key, JSON.stringify(userFromDB.credits), {
           expiration: { type: "EX", value: 300 }, // 300 seconds = 5 minutes
         });
       } catch (e) {

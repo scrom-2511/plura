@@ -20,8 +20,10 @@ model User {
   email         String         @unique
   password      String
   premium       Boolean        @default(false)
+  credits       Int            @default(5)
   chats         Chat[]
   conversations Conversation[]
+  orders        Order[]
 }
 
 model Conversation {
@@ -49,4 +51,24 @@ model Chat {
   updatedAt     DateTime       @updatedAt
   deleted       Boolean        @default(false)
   conversations Conversation[]
+}
+
+enum OrderStatus {
+  pending
+  successful
+  failed
+}
+
+model Order {
+  id                String      @id @default(auto()) @map("_id") @db.ObjectId
+  razorPayOrderId   String      @unique
+  razorPayPaymentId String?
+  amount            Int
+  status            OrderStatus
+  note              String?
+  creditsAdded      Int
+  userId            String      @db.ObjectId
+  user              User        @relation(fields: [userId], references: [id])
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
 }

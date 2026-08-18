@@ -12,7 +12,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
 
   const user = await userCheck(userId);
   if (!user) {
-    return NextResponse.json({ message: "You are not a paid user. Please pay to use our services.", success: false });
+    return NextResponse.json({ message: "You have no credits left. Please buy more credits.", success: false });
   }
 
   const stream = new ReadableStream({

@@ -2,7 +2,7 @@
 
 **One Platform. Infinite Intelligence.**
 
-Switch seamlessly between the world's most powerful language models in a single, unified interface. Plura brings all your AI conversations into one customizable workspace.
+Chat with the world's most powerful language models in a single, unified interface. Plura brings all your AI conversations into one customizable workspace.
 
 ## Overview
 Plura is the ultimate conversational AI platform built to harness the top-tier Large Language Models (GPT, Claude, Gemini, and Llama) without getting locked into a single ecosystem. It offers a premium, minimalist, and deeply interactive user interface, heavily optimized for performance, scalability, and design.

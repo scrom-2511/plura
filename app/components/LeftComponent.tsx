@@ -60,6 +60,12 @@ const LeftComponent = () => {
         >
           NEW CHAT
         </button>
+        <button
+          className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl w-full h-12 text-[12px] font-bold shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer mt-1"
+          onClick={() => router.push("/credits")}
+        >
+          BUY CREDITS
+        </button>
         <div className="relative w-full">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary">
             <circle cx="11" cy="11" r="8"></circle>

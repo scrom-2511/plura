@@ -103,8 +103,14 @@ export const streamModel = async (
           [modelFieldMap[model]]: res,
         },
       });
+
+      // Decrement credits
+      await prisma.user.update({
+        where: { id: userId },
+        data: { credits: { decrement: 1 } },
+      });
     } catch (error) {
-      console.error("Failed to save conversation:", error);
+      console.error("Failed to save conversation or decrement credits:", error);
     }
     return res;
   };
