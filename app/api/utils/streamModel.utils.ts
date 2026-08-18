@@ -7,36 +7,36 @@ const streamModelSchema = z.object({
   model: z.nativeEnum(ModelTypes),
   controller: z.any(),
   prompt: z.string(),
-  userID: z.number(),
+  userId: z.string(),
   apikey: z.string(),
-  chatID: z.string(),
-  conversationID: z.string(),
+  chatId: z.string(),
+  conversationId: z.string(),
 });
 
 export const streamModel = async (
   model: ModelTypes,
   controller: ReadableStreamDefaultController,
   prompt: string,
-  userID: number,
+  userId: string,
   apikey: string,
-  chatID: string,
-  conversationID: string
+  chatId: string,
+  conversationId: string
 ): Promise<string> => {
   const validateData = streamModelSchema.safeParse({
     model,
     controller,
     prompt,
-    userID,
+    userId,
     apikey,
-    chatID,
-    conversationID,
+    chatId,
+    conversationId,
   });
 
   if (!validateData.success) {
     throw new Error("Invalid data");
   }
 
-  const context = await contextProvider(userID, model, chatID);
+  const context = await contextProvider(userId, model, chatId);
 
   const systemContent = context
     ? `You are an AI assistant. Use the following context to maintain a natural, continuous flow in our conversation: ${context}. Do not greet me in every response. Avoid phrases like "from the context you provided"—your responses should feel seamless and conversational, as if you already know the context. The maximum number of tokens you can use is 1,000, so please make sure the answer is complete within that limit. It should not happen that you provide only a partial answer.`
@@ -64,8 +64,9 @@ export const streamModel = async (
   if (!response.ok) {
     const errorText = await response.text();
     console.error(`OpenRouter API Error (${response.status}):`, errorText);
-    controller.enqueue("Error getting response");
-    controller.close();
+    const encoder = new TextEncoder();
+    try { controller.enqueue(encoder.encode("Error getting response")); } catch {}
+    try { controller.close(); } catch {}
     return "Error getting response";
   }
 
@@ -80,24 +81,24 @@ export const streamModel = async (
 
   const saveConversationAndReturn = async (res: string) => {
     const conversation: Message = { prompt, response: res };
-    await contextSetter(userID, context, model, conversation, chatID);
+    await contextSetter(userId, context, model, conversation, chatId);
 
     try {
       await prisma.chat.upsert({
-        where: { chatUUID: chatID },
+        where: { chatUUID: chatId },
         update: { updatedAt: new Date() },
-        create: { chatUUID: chatID, chatName: "New Chat", userID },
+        create: { chatUUID: chatId, chatName: "New Chat", userId },
       });
 
       await prisma.conversation.upsert({
-        where: { conversationID },
+        where: { conversationId },
         update: {
           [modelFieldMap[model]]: res,
         },
         create: {
-          conversationID,
-          chatID,
-          userID,
+          conversationId,
+          chatId,
+          userId,
           prompt,
           [modelFieldMap[model]]: res,
         },
@@ -113,6 +114,7 @@ export const streamModel = async (
       const { done, value } = await reader.read();
 
       if (done) {
+        try { controller.close(); } catch {}
         return await saveConversationAndReturn(finalResponse);
       }
 
@@ -130,7 +132,7 @@ export const streamModel = async (
           const data = line.slice(6);
 
           if (data === "[DONE]") {
-            controller.close();
+            try { controller.close(); } catch {}
             innerBreak = true;
             break;
           }
@@ -141,7 +143,8 @@ export const streamModel = async (
 
             if (content) {
               console.log("Streaming content:", content);
-              controller.enqueue(content);
+              const encoder = new TextEncoder();
+              controller.enqueue(encoder.encode(content));
               finalResponse += content;
             }
           } catch {
@@ -155,6 +158,7 @@ export const streamModel = async (
     }
   } catch (error) {
     console.error("Error while streaming model response:", error);
+    try { controller.close(); } catch {}
     throw error;
   }
 };

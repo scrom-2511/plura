@@ -3,25 +3,30 @@ import prisma from "@/lib/prisma";
 import { client, connectClient } from "./redisClient.utils";
 
 export const contextProvider = async (
-  userID: number,
+  userId: string,
   model: ModelTypes,
-  chatID: string
+  chatId: string
 ): Promise<string | null> => {
-  if (!userID || !model || !chatID) {
-    throw new Error("Invalid parameters: userID, model, and chatID are required");
+  if (!userId || !model || !chatId) {
+    throw new Error("Invalid parameters: userId, model, and chatId are required");
   }
 
-  await connectClient();
+  const isRedisConnected = await connectClient();
+  const cacheKey = `${userId}:${model}:${chatId}`;
 
-  const cacheKey = `${userID}:${model}:${chatID}`;
-
-  const cached = await client.get(cacheKey);
-  if (cached) return cached;
+  if (isRedisConnected) {
+    try {
+      const cached = await client.get(cacheKey);
+      if (cached) return cached;
+    } catch (e) {
+      console.warn("Redis get context failed:", e);
+    }
+  }
 
   const data = await prisma.conversation.findMany({
     where: {
-      chatID,
-      userID,
+      chatId,
+      userId,
       [modelFieldMap[model]]: { not: null },
     },
     orderBy: { updatedAt: "desc" },
@@ -34,44 +39,60 @@ export const contextProvider = async (
 
   const contextArr: Message[] = [];
   for (const d of data) {
-    contextArr.push({ prompt: d.prompt, response: d[modelFieldMap[model]] as string });
+    contextArr.push({ prompt: d.prompt, response: d[modelFieldMap[model] as keyof typeof d] as string });
   }
 
   contextArr.reverse();
 
-  await client.set(cacheKey, JSON.stringify(contextArr));
+  if (isRedisConnected) {
+    try {
+      await client.set(cacheKey, JSON.stringify(contextArr));
+    } catch (e) {
+      console.warn("Redis set context failed:", e);
+    }
+  }
 
   return JSON.stringify(contextArr);
 };
 
 export const contextSetter = async (
-  userID: number,
+  userId: string,
   context: string | null,
   model: ModelTypes,
   conversation: Message,
-  chatID: string
+  chatId: string
 ): Promise<void> => {
-  if (!userID || !model || !chatID) {
-    throw new Error("Invalid parameters: userID, model, and chatID are required");
+  if (!userId || !model || !chatId) {
+    throw new Error("Invalid parameters: userId, model, and chatId are required");
   }
   if (!conversation || typeof conversation !== "object") {
     throw new Error("Invalid conversation parameter");
   }
 
-  await connectClient();
+  const isRedisConnected = await connectClient();
+  const cacheKey = `${userId}:${model}:${chatId}`;
 
-  const cacheKey = `${userID}:${model}:${chatID}`;
-
+  let newContext: Message[] = [];
   if (!context) {
-    await client.set(cacheKey, JSON.stringify([conversation]));
+    newContext = [conversation];
   } else {
-    const existingData: Array<Message> = JSON.parse(context);
-    if (existingData.length >= 20) {
-      existingData.shift();
+    try {
+      const existingData: Array<Message> = typeof context === "string" ? JSON.parse(context) : context;
+      if (existingData.length >= 20) {
+        existingData.shift();
+      }
+      existingData.push(conversation);
+      newContext = existingData;
+    } catch (e) {
+      newContext = [conversation];
     }
+  }
 
-    existingData.push(conversation);
-
-    await client.set(cacheKey, JSON.stringify(existingData));
+  if (isRedisConnected) {
+    try {
+      await client.set(cacheKey, JSON.stringify(newContext));
+    } catch (e) {
+      console.warn("Redis set context failed:", e);
+    }
   }
 };

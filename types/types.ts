@@ -1,4 +1,4 @@
-import { Conversation } from "@/app/generated/prisma/client";
+import { Conversation } from "@/generated/prisma/client";
 import z from "zod";
 
 export enum ModelTypes {
@@ -19,14 +19,14 @@ export type Message = {
 };
 
 export type ConversationEntry = {
-  id: number;
-  conversationID: string;
+  id: string;
+  conversationId: string;
   prompt: string;
   gpt: string | null;
   gemini: string | null;
   meta: string | null;
-  userID: number;
-  chatID: string;
+  userId: string;
+  chatId: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -39,7 +39,7 @@ export interface ApiResponse<T> {
 
 export const aiModelSchema = z.object({
   prompt: z.string().min(1, "Prompt cannot be empty"),
-  userID: z.number().min(1, "User ID cannot be empty"),
-  conversationID: z.string().min(1, "Conversation ID cannot be empty"),
-  chatID: z.string().min(1, "Chat ID cannot be empty"),
+  userId: z.string().min(1, "User ID cannot be empty"),
+  conversationId: z.string().min(1, "Conversation ID cannot be empty"),
+  chatId: z.string().min(1, "Chat ID cannot be empty"),
 })

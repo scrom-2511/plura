@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { z } from "zod";
+
+const deleteChatSchema = z.object({
+  chatUUID: z.string().min(1),
+});
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
-  const { chatUUID } = await req.json();
+  const body = await req.json();
+  const parsed = deleteChatSchema.safeParse(body);
 
-  if (!chatUUID || typeof chatUUID !== "string") {
+  if (!parsed.success) {
     return NextResponse.json(
       { error: "Invalid or missing 'chatUUID'", success: false },
       { status: 400 }
     );
   }
+
+  const { chatUUID } = parsed.data;
 
   try {
     const deletedChat = await prisma.chat.update({

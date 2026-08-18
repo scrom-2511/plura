@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { chatHistory } from "../reqHandlers/chatHistory.reqHandler";
 import { OptionsMenu, useChatHistoryStore, useOptionsMenuStore } from "../zustand/store";
 
@@ -13,14 +14,16 @@ const LeftComponent = () => {
 
   const { chats, appendChat, clearChat } = useChatHistoryStore();
   const [searchQuery, setSearchQuery] = useState("");
+  const { data: session } = useSession();
+  const userId = session?.user?.id as string | undefined;
 
   useEffect(() => {
-    if (hasLoadedRef.current) return;
+    if (!userId || hasLoadedRef.current) return;
     hasLoadedRef.current = true;
 
     const getChatHistory = async () => {
       try {
-        const result = await chatHistory(1, 1);
+        const result = await chatHistory(userId, 1);
 
         if (result.success) {
           console.log(result.data.data);
@@ -35,9 +38,10 @@ const LeftComponent = () => {
 
     getChatHistory();
     return () => {
-      clearChat()
+      clearChat();
+      hasLoadedRef.current = false;
     }
-  }, []);
+  }, [userId]);
 
   const handleOnClickMenu = (e: React.MouseEvent<HTMLElement>, componentID: string) => {
     e.stopPropagation();

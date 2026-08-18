@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { z } from "zod";
+
+const renameChatSchema = z.object({
+  newName: z.string().min(1),
+  chatUUID: z.string().min(1),
+});
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
-  const { newName, chatUUID } = await req.json();
+  const body = await req.json();
+  const parsed = renameChatSchema.safeParse(body);
 
-  if (typeof newName !== "string" || !newName || typeof chatUUID !== "string" || !chatUUID) {
+  if (!parsed.success) {
     return NextResponse.json({ error: "Invalid input", success: false }, { status: 400 });
   }
+
+  const { newName, chatUUID } = parsed.data;
 
   try {
     const updatedChat = await prisma.chat.update({

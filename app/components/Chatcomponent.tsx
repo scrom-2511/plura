@@ -11,6 +11,7 @@ import {
 import { v6 as uuidv6 } from "uuid";
 import PromptBox from "./PromptBox";
 import { useParams, usePathname, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { conversations } from "../reqHandlers/conversations.reqHandler";
 import { ConversationEntry } from "@/types/types";
 import { ChatPanel } from "./ChatPanel";
@@ -19,6 +20,8 @@ const Chatcomponent = () => {
   const url = useParams();
   const pathname = usePathname();
   const router = useRouter();
+  const { data: session, status } = useSession();
+  const userId = session?.user?.id || "";
 
   const [chatComponent, setChatComponent] = useState<boolean>(false);
   const [conversation, setConversations] = useState<ConversationEntry[]>([]);
@@ -71,13 +74,14 @@ const Chatcomponent = () => {
 
       sessionStorage.removeItem("pendingPrompt");
 
-      const newConversationID = uuidv6();
+      const newconversationId = uuidv6();
 
-      startStreaming(newConversationID, url.chatID as string, pendingPrompt);
+      startStreaming(newconversationId, url.chatID as string, pendingPrompt);
     } else {
       const getConversations = async () => {
+        if (!userId) return;
         try {
-          const result = await conversations(1, url.chatID as string);
+          const result = await conversations(userId, url.chatID as string);
           if (result.success) {
             setConversations(result.data.data);
           } else {
@@ -90,7 +94,7 @@ const Chatcomponent = () => {
 
       getConversations();
     }
-  }, [url.chatID, pathname, clearGpt, clearGemini, clearMeta]);
+  }, [url.chatID, pathname, clearGpt, clearGemini, clearMeta, userId]);
 
   useEffect(() => {
     if (conversation.length === 0) return;
@@ -122,15 +126,15 @@ const Chatcomponent = () => {
     setResponse: React.Dispatch<React.SetStateAction<string>>,
     addToStore: (msg: { prompt: string; response: string }) => void,
     setNewConversation: React.Dispatch<React.SetStateAction<boolean>>,
-    conversationID: string,
-    chatID: string,
+    conversationId: string,
+    chatId: string,
     promptText?: string
   ): Promise<void> => {
     const promptToUse = promptText || prompt;
 
     if (!promptToUse.trim()) return;
 
-    const data = { prompt: promptToUse, userID: 1, conversationID, chatID };
+    const data = { prompt: promptToUse, userId, conversationId, chatId };
     const finalPrompt = promptToUse;
     let finalResponse = "";
 
@@ -147,7 +151,7 @@ const Chatcomponent = () => {
     }, 60000);
 
     try {
-      const response = await fetch(`http://localhost:3000/api/aiModels/${model}`, {
+      const response = await fetch(`/api/aiModels/${model}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -195,7 +199,14 @@ const Chatcomponent = () => {
   const handleOnClick = async (): Promise<void> => {
     if (!prompt.trim()) return;
 
-    const newConversationID = uuidv6();
+    if (!userId) {
+      // Save prompt before redirecting
+      sessionStorage.setItem("pendingPrompt", prompt);
+      router.push("/auth/signin");
+      return;
+    }
+
+    const newconversationId = uuidv6();
     let newChatID = currentChatID;
 
     if (pathname.includes("newChat")) {
@@ -211,66 +222,66 @@ const Chatcomponent = () => {
       return;
     }
 
-    startStreaming(newConversationID, newChatID);
+    startStreaming(newconversationId, newChatID);
   };
 
-  const startStreaming = async (conversationID: string, chatID: string, promptText?: string) => {
+  const startStreaming = async (conversationId: string, chatId: string, promptText?: string) => {
     await Promise.allSettled([
-      streamModel("chatgpt", setGptResponse, addConversationGpt, setNewConversationGpt, conversationID, chatID, promptText),
-      streamModel("gemini", setGeminiResponse, addConversationGemini, setNewConversationGemini, conversationID, chatID, promptText),
-      streamModel("meta", setMetaResponse, addConversationMeta, setNewConversationMeta, conversationID, chatID, promptText),
+      streamModel("chatgpt", setGptResponse, addConversationGpt, setNewConversationGpt, conversationId, chatId, promptText),
+      streamModel("gemini", setGeminiResponse, addConversationGemini, setNewConversationGemini, conversationId, chatId, promptText),
+      streamModel("meta", setMetaResponse, addConversationMeta, setNewConversationMeta, conversationId, chatId, promptText),
     ]);
   };
 
   return (
     <div className="flex flex-col h-full w-full max-w-full overflow-hidden">
       <div className="flex-1 overflow-x-auto overflow-y-hidden flex gap-4 snap-x pt-16 px-4 md:px-8 pb-4 scroll-smooth scrollbar-hide">
-      {chatComponent ? (
-        <>
-          <div className="min-w-[320px] w-[85vw] md:w-auto flex-1 snap-start h-full shrink-0">
-             <ChatPanel
-               title="CHATGPT"
-               messages={messagesGpt}
-               newConversation={newConversationGpt}
-               currentPrompt={currentPrompt}
-               liveResponse={gptResponse}
-             />
-          </div>
-          <div className="min-w-[320px] w-[85vw] md:w-auto flex-1 snap-start h-full shrink-0">
-             <ChatPanel
-               title="GEMINI"
-               messages={messagesGemini}
-               newConversation={newConversationGemini}
-               currentPrompt={currentPrompt}
-               liveResponse={geminiResponse}
-             />
-          </div>
-          <div className="min-w-[320px] w-[85vw] md:w-auto flex-1 snap-start h-full shrink-0">
-             <ChatPanel
-               title="META"
-               messages={messagesMeta}
-               newConversation={newConversationMeta}
-               currentPrompt={currentPrompt}
-               liveResponse={metaResponse}
-             />
-          </div>
-        </>
-      ) : (
-        <>
-          {["CHATGPT", "GEMINI", "META"].map((model) => (
-             <div className="min-w-[320px] w-[85vw] md:w-auto flex-1 snap-start h-full shrink-0" key={model}>
-                 <div
-                   className="flex flex-col items-center justify-center bg-background border border-input-border rounded-3xl h-full p-8 transition-all duration-500 hover:bg-input hover:border-accent/50 hover:shadow-2xl hover:shadow-accent/10 hover:-translate-y-1.5 group cursor-default"
-                 >
-                   <div className="text-foreground tracking-[0.25em] text-xs font-extrabold uppercase mb-2">{model}</div>
-                   <p className="text-[11px] text-secondary/70 text-center leading-relaxed max-w-[80%]">
-                     Ready to respond intelligently.
-                   </p>
-                 </div>
-             </div>
-          ))}
-        </>
-      )}
+        {chatComponent ? (
+          <>
+            <div className="min-w-[320px] w-[85vw] md:w-auto flex-1 snap-start h-full shrink-0">
+              <ChatPanel
+                title="CHATGPT"
+                messages={messagesGpt}
+                newConversation={newConversationGpt}
+                currentPrompt={currentPrompt}
+                liveResponse={gptResponse}
+              />
+            </div>
+            <div className="min-w-[320px] w-[85vw] md:w-auto flex-1 snap-start h-full shrink-0">
+              <ChatPanel
+                title="GEMINI"
+                messages={messagesGemini}
+                newConversation={newConversationGemini}
+                currentPrompt={currentPrompt}
+                liveResponse={geminiResponse}
+              />
+            </div>
+            <div className="min-w-[320px] w-[85vw] md:w-auto flex-1 snap-start h-full shrink-0">
+              <ChatPanel
+                title="META"
+                messages={messagesMeta}
+                newConversation={newConversationMeta}
+                currentPrompt={currentPrompt}
+                liveResponse={metaResponse}
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            {["CHATGPT", "GEMINI", "META"].map((model) => (
+              <div className="min-w-[320px] w-[85vw] md:w-auto flex-1 snap-start h-full shrink-0" key={model}>
+                <div
+                  className="flex flex-col items-center justify-center bg-background border border-input-border rounded-3xl h-full p-8 transition-all duration-500 hover:bg-input hover:border-accent/50 hover:shadow-2xl hover:shadow-accent/10 hover:-translate-y-1.5 group cursor-default"
+                >
+                  <div className="text-foreground tracking-[0.25em] text-xs font-extrabold uppercase mb-2">{model}</div>
+                  <p className="text-[11px] text-secondary/70 text-center leading-relaxed max-w-[80%]">
+                    Ready to respond intelligently.
+                  </p>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
       </div>
 
       <div className="shrink-0 w-full px-4 md:px-8 pb-6">

@@ -1,10 +1,18 @@
 import axios from "axios";
 import { ApiResponse } from "@/types/types";
 import { OptionsMenu } from "../zustand/store";
+import { z } from "zod";
+
+const renameChatSchema = z.object({
+  options: z.object({
+    componentID: z.string(),
+  }),
+  newName: z.string().trim().min(1),
+});
 
 export const renameChat = async (options: OptionsMenu, newName: string): Promise<ApiResponse<void>> => {
-  if (!options || typeof options.componentID !== "string" || typeof newName !== "string" || newName.trim().length === 0) {
-    console.warn(`Skipping API call: invalid parameters provided. componentID=${options?.componentID}, newName=${newName}`);
+  const validation = renameChatSchema.safeParse({ options, newName });
+  if (!validation.success) {
     return {
       success: false,
       data: null,
@@ -13,8 +21,7 @@ export const renameChat = async (options: OptionsMenu, newName: string): Promise
   }
 
   try {
-    await axios.post(
-      "http://localhost:3000/api/renameChat",
+    await axios.post("/api/renameChat",
       {
         chatUUID: options.componentID,
         newName,

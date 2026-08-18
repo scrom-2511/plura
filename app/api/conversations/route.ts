@@ -1,18 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { z } from "zod";
+
+const conversationsSchema = z.object({
+  chatId: z.string().min(1),
+  userId: z.string().min(1),
+});
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   try {
-    const { chatID, userID } = await req.json();
+    const body = await req.json();
+    const parsed = conversationsSchema.safeParse(body);
 
-    if (!chatID || !userID) {
+    if (!parsed.success) {
       return NextResponse.json({ error: "Invalid input", success: false }, { status: 400 });
     }
 
+    const { chatId, userId } = parsed.data;
+
     const chats = await prisma.conversation.findMany({
       where: {
-        chatID,
-        userID,
+        chatId,
+        userId,
       },
       orderBy: {
         updatedAt: "asc",

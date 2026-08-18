@@ -1,26 +1,26 @@
 import { ApiResponse } from "@/types/types";
 import axios from "axios";
+import { z } from "zod";
+
+const conversationsSchema = z.object({
+  userId: z.string().min(1),
+  chatId: z.string().trim().min(1),
+});
 
 export const conversations = async (
-  userID: number,
-  chatID: string
+  userId: string,
+  chatId: string
 ): Promise<ApiResponse<any>> => {
-  if (
-    typeof userID !== "number" ||
-    userID <= 0 ||
-    typeof chatID !== "string" ||
-    chatID.trim() === ""
-  ) {
-    console.warn(
-      `Skipping API call: invalid parameters userID=${userID}, chatID='${chatID}'`
-    );
+  const validation = conversationsSchema.safeParse({ userId, chatId });
+
+  if (!validation.success) {
     return { success: false, data: null, error: "Invalid parameters" };
   }
 
   try {
-    const res = await axios.post("http://localhost:3000/api/conversations", {
-      userID,
-      chatID,
+    const res = await axios.post("/api/conversations", {
+      userId,
+      chatId,
     });
 
     return { success: true, data: res.data };
