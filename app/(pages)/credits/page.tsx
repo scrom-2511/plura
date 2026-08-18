@@ -118,17 +118,28 @@ export default function CreditsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-indigo-500/30 flex flex-col items-center pt-24 pb-12 px-4 sm:px-6 lg:px-8 font-sans overflow-x-hidden">
+    <div
+      className="min-h-screen flex flex-col items-center pt-24 pb-12 px-4 sm:px-6 lg:px-8 font-sans overflow-x-hidden"
+      style={{ background: "var(--background)", color: "var(--foreground)" }}
+    >
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
 
-      {/* Background Gradients */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[40rem] opacity-30 pointer-events-none blur-[120px] bg-gradient-to-b from-indigo-600 via-purple-600 to-transparent -z-10 rounded-full" />
-      <div className="absolute top-1/3 left-0 w-96 h-96 opacity-20 pointer-events-none blur-[100px] bg-indigo-500 -z-10 rounded-full mix-blend-screen" />
-      <div className="absolute bottom-1/3 right-0 w-96 h-96 opacity-20 pointer-events-none blur-[100px] bg-purple-500 -z-10 rounded-full mix-blend-screen" />
+      {/* Background Soft Glows */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        aria-hidden="true"
+        style={{
+          background: `radial-gradient(circle at 20% 30%, var(--accent) 0%, transparent 50%), radial-gradient(circle at 80% 70%, var(--primary) 0%, transparent 50%)`,
+          opacity: 0.15,
+          filter: "blur(120px)",
+        }}
+      />
 
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto mb-16 relative z-10">
-        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 drop-shadow-sm">
+        <h1
+          className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-linear-to-r from-accent via-[#9983ef] to-accent"
+        >
           Supercharge Your AI
         </h1>
         <p className="text-lg md:text-xl text-neutral-400 font-medium leading-relaxed max-w-2xl mx-auto">
@@ -141,12 +152,18 @@ export default function CreditsPage() {
         {plans.map((plan) => (
           <div
             key={plan.name}
-            className={`relative flex flex-col bg-neutral-900/50 backdrop-blur-xl border ${
-              plan.popular ? "border-indigo-500 shadow-[0_0_40px_rgba(99,102,241,0.2)]" : "border-white/10"
-            } rounded-3xl p-8 transition-all duration-300 hover:scale-[1.02] hover:bg-neutral-900/80 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/20 group`}
+            className={`relative flex flex-col p-8 rounded-3xl border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group`}
+            style={{
+              background: "var(--input-bg)",
+              borderColor: plan.popular ? "var(--accent)" : "var(--input-border)",
+              backdropFilter: "blur(12px)",
+            }}
           >
             {plan.popular && (
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg">
+              <div
+                className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg"
+                style={{ background: "var(--accent)" }}
+              >
                 Most Popular
               </div>
             )}
@@ -154,7 +171,7 @@ export default function CreditsPage() {
               <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
               <p className="text-sm text-neutral-400">{plan.description}</p>
             </div>
-            
+
             <div className="mb-8 flex items-baseline gap-2">
               <span className="text-5xl font-extrabold text-white">₹{plan.price}</span>
               <span className="text-sm font-medium text-neutral-500 uppercase tracking-wide">/ {plan.credits} Credits</span>
@@ -174,11 +191,10 @@ export default function CreditsPage() {
             <button
               onClick={() => handlePayment(plan)}
               disabled={loading === plan.name}
-              className={`w-full py-4 px-6 rounded-2xl font-bold text-sm tracking-wide uppercase transition-all duration-300 flex items-center justify-center gap-2 ${
-                plan.popular
-                  ? "bg-white text-black hover:bg-indigo-50 hover:scale-[1.02] shadow-lg hover:shadow-indigo-500/25"
-                  : "bg-neutral-800 text-white hover:bg-neutral-700 hover:scale-[1.02] border border-white/5"
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`w-full py-4 px-6 rounded-2xl font-bold text-sm tracking-wide uppercase transition-all duration-300 flex items-center justify-center gap-2 cursorpo ${plan.popular
+                ? "bg-linear-to-br from-accent via-[#9983ef] to-accent text-white shadow-xl shadow-accent/30 hover:shadow-accent/50 hover:-translate-y-1 transition-all duration-300"
+                : "bg-neutral-800 text-white hover:bg-neutral-700"
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {loading === plan.name ? (
                 <>
